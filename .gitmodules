@@ -1,0 +1,3 @@
+[submodule "FazyRV"]
+	path = FazyRV
+	url = git@github.com:meiniKi/FazyRV.git
