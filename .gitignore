@@ -1,0 +1,7 @@
+.venv
+work*
+build
+riscof_work
+
+__pycache__/
+*.py[cod]

@@ -1,0 +1,85 @@
+CAPI=2:
+name: ::exotiny:0.0.1
+description: A minimal SoC using the FazyRV core and external memory
+
+filesets:
+  soc:
+    files:
+      - rtl/gpio.sv
+      - rtl/wb_qspi_mem.sv
+      - rtl/exotiny.sv
+    file_type: systemVerilogSource
+    depend: [fazyrv]
+
+  verilator_tb:
+    files:
+      - tb/spiflash.v
+      - tb/qspi_psram.sv
+      - tb/exotiny_sim.sv
+      - tb/exotiny_tb.cpp: {file_type: cppSource}
+    file_type: systemVerilogSource
+
+targets:
+  verilator_tb:
+    filesets: [soc, verilator_tb]
+    flow: sim
+    flow_options:
+      tool: verilator
+      verilator_options:
+        - "--trace-fst"
+        - "--Wno-WIDTHTRUNC"
+        - "--timescale-override 1us/1ns"
+        - "--timing"
+        - "--Wno-CASEINCOMPLETE"
+    parameters:
+      - RISCV_FORMAL
+      - CHUNKSIZE
+      - CONF
+      - RFTYPE
+      - firmware
+      - SIM
+      - DEBUG
+      - SIGNATURE
+    toplevel: exotiny_sim
+
+parameters:
+  CHUNKSIZE:
+    datatype    : int
+    description : Bit width of the data path.
+    paramtype   : vlogparam
+  
+  CONF:
+    datatype    : str
+    description : Feature set of the core.
+    paramtype   : vlogparam
+
+  RFTYPE:
+    datatype    : str
+    description : Implementation of regfile; either "LOGIC", "BRAM", "BRAM_BP", "BRAM_DP", or "BRAM_DP_BP".
+    paramtype   : vlogparam
+
+  RISCV_FORMAL:
+    datatype    : bool
+    paramtype   : vlogdefine
+
+  SIM:
+    datatype    : bool
+    paramtype   : vlogdefine
+  
+  SIGNATURE:
+    datatype    : bool
+    paramtype   : vlogdefine
+
+  DEBUG:
+    datatype    : bool
+    paramtype   : vlogdefine
+
+  firmware:
+    datatype    : str
+    description : Preload RAM with hex.
+    paramtype   : plusarg
+
+  GPOCNT:
+    datatype    : int
+    description : Number of outputs.
+    paramtype   : vlogparam
