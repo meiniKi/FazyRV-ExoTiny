@@ -78,12 +78,8 @@ logic [31:0]  wb_gpio_wdat;
 logic         sel_gpio;
 logic         sel_rom_ram;
 
-`ifndef SIGNATURE
-assign sel_gpio = wb_mem_adr[28];
-`else
-assign sel_gpio = 1'b0;
-`endif
 
+assign sel_gpio = wb_mem_adr[28];
 assign sel_rom_ram = wb_mem_adr[27];
 
 assign wb_cpu_imem_rdat = wb_mem_rdat;
@@ -128,6 +124,7 @@ wb_qspi_mem i_wb_qspi_mem (
 
 
 gpio #(.GPOCNT(GPOCNT)) i_gpio (
+  .rst_in ( rst_in        ),
   .clk_i  ( clk_i         ),
   .cyc_i  ( wb_gpio_cyc   ),
   .stb_i  ( wb_gpio_stb   ),

@@ -2,6 +2,9 @@
 work*
 build
 riscof_work
+*.vcd
+*.fst
+
 
 __pycache__/
 *.py[cod]

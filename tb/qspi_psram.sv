@@ -8,6 +8,9 @@
 // Param
 //  - DEPTH     Memory size in bytes
 //
+// Limations
+//  - requires that sck_i continues for at least one clock cylce after cs_in high
+//
 // Ports
 //  - sck_i     Serial clock
 //  - cs_in     Low active chip select
@@ -76,8 +79,9 @@ always @(posedge sck_i) begin
   qspi_unlocked_r <= qspi_unlocked_n;
   mem_byte_r      <= mem_byte_n;
 
-  if (state_r == WRITE) 
+  if ((state_r == WRITE) && (cnt_r == 'd1) && ~cs_in) begin
     mem_r[adr_r]  <= mem_byte_n;
+  end
 end
 
 always_comb begin
@@ -160,7 +164,7 @@ always_comb begin
   end
 end
 
-//`ifdef DBEUG
+`ifdef DEBUG
 (* keep *) logic [127:0] dbg_ascii_state;
 always_comb begin
   case(state_r)
@@ -173,7 +177,7 @@ always_comb begin
   default:  dbg_ascii_state = "UNKNOWN";
   endcase
 end
-//`endif
+`endif
 
 
 // Adopted from SERV
@@ -182,10 +186,10 @@ logic sig_en;
 logic halt_en;
 
 // RAM:   0x0{b10xx}xxxxxx
-assign sig_en = (adr_r[31:26] == 6'b0000_10) & (state_r == WRITE) & (state_n != WRITE);
+assign sig_en = (adr_r[23:20] == 4'hE) & (state_r == WRITE) & (state_n != WRITE);
 
-//        0x0{b11xx}xxxxxx
-assign halt_en = (adr_r[31:26] == 6'b0000_11) & (state_r == WRITE) & (state_n != WRITE);
+// big address within RAM: 0xF00000
+assign halt_en = (adr_r[23:20] == 4'hF) & (state_r == WRITE) & (state_n != WRITE);
 
 logic [1023:0] signature_file;
 integer f = 0;

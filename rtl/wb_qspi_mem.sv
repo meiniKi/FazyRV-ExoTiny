@@ -37,18 +37,14 @@ module wb_qspi_mem (
   output logic [3:0]  sd_o,
   output logic [3:0]  sd_oen_o
 );
-
-assign wb_mem_dat_o = { dat_r[ 7: 4], dat_r[ 3: 0],
-                        dat_r[15:12], dat_r[11: 8],
-                        dat_r[23:20], dat_r[19:16],
-                        dat_r[31:28], dat_r[27:24]};
   
 localparam USE_CONTINUOUS_READ_MODE = 1;
 
 localparam INSTR_QRD = 32'b???1_???1_???1_???0_???1_???0_???1_???1; // (8'hEB == 8'b1110_1011)
 localparam INSTR_QWD = 32'b???0_???0_???1_???1_???1_???0_???0_???0; // (8'h38 == 8'b0011_1000)
 
-localparam RAM_INSTR_TO_QSPI = 32'b???0_???0_???1_???1_???0_???1_???0_???1; // (8'h35 == 8'b0011_0101;
+//localparam RAM_INSTR_TO_QSPI = 32'b???0_???0_???1_???1_???0_???1_???0_???1; // (8'h35 == 8'b0011_0101;
+localparam RAM_INSTR_TO_QSPI = 32'b0000_0000_0001_0001_0000_0001_0000_0001; // (8'h35 == 8'b0011_0101;
 
 localparam RAM_RD_HIGHZ_CYCLES = 'd7;
 localparam ROM_RD_HIGHZ_CYCLES = 'd4;
@@ -61,37 +57,37 @@ localparam ROM_RD_HIGHZ_CYCLES = 'd4;
 
 // Split DATA into DATA_R and DATA_R, to have 8 states and avoid if in DATA
 //
-enum int unsigned { INIT=0, IDLE, INSTR, ADDR, DUMMY, DATA_R, DATA_W, ACK} state_r, state_n;
-
+enum int unsigned { INIT, IDLE, INSTR, ADDR, DUMMY, DATA_R, DATA_W, ACK} state_r, state_n;
 
 logic [2:0]  cnt_r, cnt_n;
 logic [31:0] dat_r, dat_n;
 logic [31:0] adr_init;
 
-logic crm_r, crm_n;
+assign wb_mem_dat_o = { dat_r[ 7: 4], dat_r[ 3: 0],
+                        dat_r[15:12], dat_r[11: 8],
+                        dat_r[23:20], dat_r[19:16],
+                        dat_r[31:28], dat_r[27:24]};
 
-logic [31:0] di;
-logic [31:0] data_i_padded;
-assign di = wb_mem_dat_i; // to shorten the next line
+logic         crm_r, crm_n;
+logic [31:0]  data_i_padded;
 
-assign data_i_padded = {  di[ 7: 4], di[ 3: 0],
-                          di[15:12], di[11: 8],
-                          di[23:20], di[19:16],
-                          di[31:28], di[27:24]};
+assign data_i_padded = {  wb_mem_dat_i[ 7: 4], wb_mem_dat_i[ 3: 0],
+                          wb_mem_dat_i[15:12], wb_mem_dat_i[11: 8],
+                          wb_mem_dat_i[23:20], wb_mem_dat_i[19:16],
+                          wb_mem_dat_i[31:28], wb_mem_dat_i[27:24]};
 
 
-assign sck_o = ~clk_i & (state_r != IDLE) & rst_in;
+assign sck_o = ~clk_i; //& (state_r != IDLE) & rst_in; save area
 
 logic [4:0] data_idx;
-assign data_idx = {cnt_r - (offset<<1), 2'b00};
+assign data_idx = {cnt_r - {offset, 1'b0}, 2'b00};
 
-assign sd_o = (state_r == DATA_W) ? wb_mem_dat_i[data_idx +: 4] : dat_r[31 -: 4];
+assign sd_o = (state_r == DATA_W) ? data_i_padded[data_idx +: 4] : dat_r[31 -: 4];
 
 logic [1:0] offset;
-assign offset = wb_mem_be_i[0] ? 'd0 :
-                wb_mem_be_i[1] ? 'd1 :
-                wb_mem_be_i[2] ? 'd2 : 'd3 ;
-
+assign offset = (wb_mem_be_i[0] | ~wb_mem_we_i) ? 'd0 :
+                wb_mem_be_i[1]                  ? 'd1 :
+                wb_mem_be_i[2]                  ? 'd2 : 'd3 ;
 
 logic [2:0] cnt_to_write_init;
 assign cnt_to_write_init = &wb_mem_be_i                     ? 'd7 :
@@ -108,18 +104,16 @@ endgenerate
 
 
 always_ff @(posedge clk_i) begin
-  // Todo: check where not reset required
   if (~rst_in) begin
     state_r   <= INIT;
-    cnt_r     <= 'b0;
     crm_r     <= 'b0;
     cnt_r     <= 'd7;
     dat_r     <= RAM_INSTR_TO_QSPI;
   end else begin
     state_r   <= state_n;
     crm_r     <= crm_n;
-    cnt_r <= cnt_n;
-    dat_r <= dat_n;
+    cnt_r     <= cnt_n;
+    dat_r     <= dat_n;
   end
 end
 
@@ -201,11 +195,10 @@ always_comb begin
         state_n = DATA_R;
         cnt_n   = 'd7;
       end
-
     end
     //---
     DATA_R: begin
-      dat_n = {dat_r[28:0], sd_i};  // shift in this way to just have one shift direction
+      dat_n = {dat_r[27:0], sd_i};  // shift in this way to just have one shift direction
       if (cnt_r == 'h0) begin
         state_n = ACK;
       end
@@ -219,6 +212,8 @@ always_comb begin
     end
     //---
     ACK: begin
+      cs_rom_on = 1'b1;
+      cs_ram_on = 1'b1;
       wb_mem_ack_o  = 1'b1;
       state_n       = IDLE;
     end
@@ -226,7 +221,7 @@ always_comb begin
 end
 
 
-//`ifdef DBEUG
+`ifdef DEBUG
 (* keep *) logic [127:0] dbg_ascii_state;
 always_comb begin
   case(state_r)
@@ -241,6 +236,22 @@ always_comb begin
     default dbg_ascii_state = "UNKNOWN";
   endcase
 end
-//`endif
+
+
+(* keep *) logic dbg_ram_rd_word;
+(* keep *) logic dbg_ram_wr_word;
+(* keep *) logic dbg_ram_rd_byte;
+(* keep *) logic dbg_ram_wr_byte;
+
+(* keep *) logic [31:0] dbg_dat_n;
+
+assign dbg_dat_n = (dat_r << 'd4);
+
+assign dbg_ram_rd_word = ~cs_ram_on & ~wb_mem_we_i & (wb_mem_be_i == 4'b1111);
+assign dbg_ram_wr_word = ~cs_ram_on & wb_mem_we_i & (wb_mem_be_i == 4'b1111);
+assign dbg_ram_rd_byte = ~cs_ram_on & ~wb_mem_we_i & (wb_mem_be_i != 4'b1111);
+assign dbg_ram_wr_byte = ~cs_ram_on & wb_mem_we_i & (wb_mem_be_i != 4'b1111);
+
+`endif
 
 endmodule

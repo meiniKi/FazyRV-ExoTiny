@@ -37,7 +37,7 @@ SECTIONS
 		*(.srodata.*)
 		*(.gnu.linkonce.s.*)
 		. = ALIGN(4);
-	} > ram AT> rom
+	} > ram AT > rom
 
 	PROVIDE(__data_rom_start = LOADADDR(.data));
 	PROVIDE(__data_size = SIZEOF(.data));

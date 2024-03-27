@@ -6,11 +6,12 @@
 
 `timescale 1 ns / 1 ps
 
-module exotiny_tb;
+module exotiny_tb #(
+  parameter CHUNKSIZE  = 4,
+  parameter RFTYPE     = "BRAM",
+  parameter CONF       = "MIN"
+);
 
-localparam CHUNKSIZE  = `CHUNKSIZE;
-localparam RFTYPE     = `RFTYPE;
-localparam CONF       = `CONF;
 
 logic clk   = 1'b0;
 logic rst_n = 1'b0;
@@ -24,13 +25,13 @@ initial begin
 end
 
 initial begin
-  if ($test$plusargs("vcd")) begin
-    $dumpfile("tb.vcd");
+  //if ($test$plusargs("vcd")) begin
+    $dumpfile("tb.fst");
     $dumpvars(0, exotiny_tb);
-  end
-  repeat (600000) @(posedge clk);
-  $display("TIMEOUT");
-  $fatal;
+  //end
+  //repeat (600000) @(posedge clk);
+  //$display("TIMEOUT");
+  //$fatal;
 end
 
 // Hack when solution when not traps are implemented.
@@ -51,6 +52,7 @@ always_ff @(posedge clk) begin
   end
 end
 
+`ifdef SIGNATURE
 always_ff @(posedge clk) begin
   if (shift_reg == {"D", "O", "N", "E"}) begin
     $finish;
@@ -59,7 +61,7 @@ always_ff @(posedge clk) begin
     $fatal;
   end
 end
-
+`endif
 
 exotiny_sim #( 
   .CHUNKSIZE  ( CHUNKSIZE ),

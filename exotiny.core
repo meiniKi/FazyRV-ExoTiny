@@ -19,6 +19,14 @@ filesets:
       - tb/exotiny_tb.cpp: {file_type: cppSource}
     file_type: systemVerilogSource
 
+  icarus_tb:
+    files:
+      - tb/spiflash.v
+      - tb/qspi_psram.sv
+      - tb/exotiny_sim.sv
+      - tb/exotiny_tb.sv
+    file_type: systemVerilogSource
+
 targets:
   verilator_tb:
     filesets: [soc, verilator_tb]
@@ -37,10 +45,32 @@ targets:
       - CONF
       - RFTYPE
       - firmware
+      - rampreload
       - SIM
       - DEBUG
       - SIGNATURE
     toplevel: exotiny_sim
+
+  icarus_tb:
+    filesets: [soc, icarus_tb]
+    flow: sim
+    flow_options:
+      tool: icarus
+      iverilog_options:
+        - "-g2005-sv"
+    parameters:
+      - RISCV_FORMAL
+      - CHUNKSIZE
+      - CONF
+      - RFTYPE
+      - firmware
+      - rampreload
+      - SIM
+      - DEBUG
+      - SIGNATURE
+      - signature
+    toplevel: exotiny_tb
+
 
 parameters:
   CHUNKSIZE:
@@ -76,7 +106,17 @@ parameters:
 
   firmware:
     datatype    : str
+    description : Preload ROM with hex.
+    paramtype   : plusarg
+
+  rampreload:
+    datatype    : str
     description : Preload RAM with hex.
+    paramtype   : plusarg
+
+  signature:
+    datatype    : str
+    description : Signature file.
     paramtype   : plusarg
 
   GPOCNT:

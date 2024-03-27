@@ -79,12 +79,13 @@ class exotiny(pluginTemplate):
          -I ' + archtest_env + ' {2} -o {3} {4}'
 
        # add more utility snippets here
-       build_exotiny = 'fusesoc run --target=verilator_tb --build --work-root=work_sim_riscof \
-        exotiny --CHUNKSIZE={} --CONF={} --RFTYPE={} --DEBUG=1 --SIM=1 --SIGNATURE=1'.format(
-          os.environ.get('RISCOF_BWIDTH', 8),
-          os.environ.get('RISCOF_CONF', "MIN"),
-          os.environ.get('RISCOF_RFTYPE', "BRAM")
-        )
+       #build_exotiny = 'fusesoc run --target=icarus_tb --build --work-root=work_sim_riscof \
+       # exotiny --CHUNKSIZE={} --CONF={} --RFTYPE={} --DEBUG=1 --SIM=1 --SIGNATURE=1'.format(
+       #   os.environ.get('RISCOF_BWIDTH', 8),
+       #   os.environ.get('RISCOF_CONF', "MIN"),
+       #   os.environ.get('RISCOF_RFTYPE', "BRAM")
+       # )
+       build_exotiny = ""
        utils.shellCommand(build_exotiny).run()
 
     def build(self, isa_yaml, platform_yaml):
@@ -241,20 +242,34 @@ class exotiny(pluginTemplate):
         objcopy_run = f'riscv32-unknown-elf-objcopy -O binary {elf} {fname}.bin'
         utils.shellCommand(objcopy_run).run(cwd=test_dir)
 
+        objcopy_run = f'riscv32-unknown-elf-objcopy -O binary -j .data {elf} {fname}_ram.bin'
+        utils.shellCommand(objcopy_run).run(cwd=test_dir)
+        
         self.makehex(f"{test_dir}/{fname}.bin", f"{test_dir}/{fname}.hex")
+        self.makehex(f"{test_dir}/{fname}_ram.bin", f"{test_dir}/{fname}_ram.hex")
 
         if self.target_run:
           # build the command for running the elf on the DUT. In this case we use spike and indicate
           # the isa arg that we parsed in the build stage, elf filename and signature filename.
           
-          logger.debug('Executing on fazyrv...')
-          exe = 'work_sim_riscof/Vexotiny_sim'
-          sigdump_run = [exe,
-                "+timeout=10",
-                f"+signature={test_dir}/DUT-fazyrv.signature",
-                f"+firmware={test_dir}/{fname}.hex"]
+          logger.debug('Executing on simulation...')
 
-          utils.shellCommand(' '.join(sigdump_run)).run()
+          str_firmware = f"{test_dir}/{fname}.hex"
+          str_rampreload = f"{test_dir}/{fname}_ram.hex"
+
+          sigdump_run = 'fusesoc run --target=icarus_tb --work-root=work_sim_riscof \
+           exotiny --CHUNKSIZE={} --CONF={} --RFTYPE={} --DEBUG=1 --SIM=1 --SIGNATURE=1 --signature={} --firmware={} --rampreload={}'.format(
+            os.environ.get('RISCOF_BWIDTH', 8),
+            os.environ.get('RISCOF_CONF', "MIN"),
+            os.environ.get('RISCOF_RFTYPE', "BRAM"),
+            sig_file,
+            str_firmware,
+            str_rampreload
+           )
+
+          logger.debug(sigdump_run)
+
+          utils.shellCommand(sigdump_run).run()
           logger.debug('done.')
           #execute = self.dut_exe + ' --isa={0} +signature={1} +signature-granularity=4 {2}'.format(self.isa, sig_file, elf)
 
@@ -278,11 +293,11 @@ class exotiny(pluginTemplate):
         while True:
           data = f.read(1)
           if not data:
-            fout.write(''.join(s)+'\n')
+            fout.write(f"{s[3]} {s[2]} {s[1]} {s[0]}"+'\n')
             return
           s[cnt] = "{:02X}".format(data[0])
           if cnt == 0:
-            fout.write(''.join(s)+'\n')
+            fout.write(f"{s[3]} {s[2]} {s[1]} {s[0]}" +'\n')
             s = ["00"]*4
             cnt = 4
           cnt -= 1

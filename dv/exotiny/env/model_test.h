@@ -14,7 +14,7 @@
 #define RVMODEL_HALT                                              \
   la a0, begin_signature;	 \
   la a1, end_signature; \
-  li a2, 0x08000000; \
+  li a2, 0x08E00000; \
   complience_halt_loop: \
       beq a0, a1, complience_halt_break; \
       addi a3, a0, 4; \
@@ -47,7 +47,9 @@
       j complience_halt_loop; \
       j complience_halt_break;		\
   complience_halt_break:; \
-      lui	a0,0x0B0000000>>12;	\
+      lui	a0,0x10000000>>12;	\
+      sw	x0,0(a0); \
+      lui	a0,0x08F00000>>12;	\
       sw	a3,0(a0);
 
 //  li x1, 1;                                                                   \
@@ -55,7 +57,10 @@
 //    sw x1, tohost, t5;                                                        \
 //    j write_tohost;
 
-#define RVMODEL_BOOT
+#define RVMODEL_BOOT \
+    lui	a0,0x10000000>>12;	\
+    li  a1, 1; \
+    sw	a1,0(a0);
 
 //RV_COMPLIANCE_DATA_BEGIN
 #define RVMODEL_DATA_BEGIN                                              \
