@@ -48,6 +48,14 @@ logic io2_oen;
 logic io3_oen;
 
 logic [7:0] mem_r [0:DEPTH-1];
+
+logic [1023:0] rampreload_file;
+initial begin
+  if (!$value$plusargs("rampreload=%s", rampreload_file))
+    rampreload_file = "rampreload.hex";
+  $readmemh(rampreload_file, mem_r);
+end
+
 logic [7:0] mem_byte_r, mem_byte_n;
 
 logic qspi_unlocked_n, qspi_unlocked_r = 0;
@@ -69,6 +77,9 @@ assign io0_io = io0_oen ? io0_o : 1'bz;
 assign io1_io = io1_oen ? io1_o : 1'bz;
 assign io2_io = io2_oen ? io2_o : 1'bz;
 assign io3_io = io3_oen ? io3_o : 1'bz;
+
+logic [7:0] current_read;
+assign current_read = mem_r[adr_r]; 
 
 always @(posedge sck_i) begin
   cnt_r           <= cnt_n;
@@ -115,20 +126,19 @@ always_comb begin
       // ---
       ADR: begin
         cnt_n = cnt_r + 'd1;
-        adr_n = adr_r << 4;
+        adr_n = {adr_r[19:0], io3_io, io2_io, io1_io, io0_io};
         if (cnt_r == 'd5) begin
           cnt_n       = 'd0;
-          state_n     = DUMMY;
-          mem_byte_n  = mem_r[adr_n];
+          if (cmd_r == CMD_QSPI_WRITE)  state_n = WRITE;
+          else                          state_n = DUMMY;
         end
       end
       // ---
       DUMMY: begin
         cnt_n = cnt_r + 'd1;
         if (cnt_r == (DUMMY_CYCLES - 'd1)) begin
-          cnt_n = 'd0;
-          if (cmd_r == CMD_QSPI_READ) state_n = READ;
-          if (cmd_r == CMD_QSPI_READ) state_n = WRITE;
+          cnt_n   = 'd0;
+          state_n = READ;
         end
       end
       // ---
@@ -143,9 +153,10 @@ always_comb begin
       end
       // ---
       READ: begin
+        //mem_byte_n = mem_r[adr_r];
         cnt_n = cnt_r + 'd1;
-        if (cnt_r == 'd0) {io3_o, io2_o, io1_o, io0_o} = mem_byte_r[7:4];
-        else              {io3_o, io2_o, io1_o, io0_o} = mem_byte_r[3:0];
+        if (cnt_r == 'd0) {io3_o, io2_o, io1_o, io0_o} = current_read[7:4];
+        else              {io3_o, io2_o, io1_o, io0_o} = current_read[3:0];
         if (cnt_r == 'd1) begin
           cnt_n = 'd0;
           adr_n = adr_r + 'd1;
@@ -182,30 +193,32 @@ end
 
 // Adopted from SERV
 `ifdef SIGNATURE
-logic sig_en;
-logic halt_en;
+(* keep *) logic sig_en;
+(* keep *) logic halt_en;
+
+// signature only uses sb, thus we can save the first byte and ignore the others
 
 // RAM:   0x0{b10xx}xxxxxx
-assign sig_en = (adr_r[23:20] == 4'hE) & (state_r == WRITE) & (state_n != WRITE);
+assign sig_en = (adr_r[23:20] == 4'hE) & (state_r == WRITE) & (cnt_r == 'd1) & (adr_r[1:0] == 'd0);
 
 // big address within RAM: 0xF00000
-assign halt_en = (adr_r[23:20] == 4'hF) & (state_r == WRITE) & (state_n != WRITE);
+assign halt_en = (adr_r[23:20] == 4'hF) & (state_r == WRITE) & (cnt_r == 'd1) & (adr_r[1:0] == 'd0);
 
 logic [1023:0] signature_file;
 integer f = 0;
 
 initial
   /* verilator lint_off WIDTH */
-  if ($value$plusargs("signature=%s", signature_file)) begin
+  if ($value$plusargs("signature_file=%s", signature_file)) begin
     $display("Writing signature to %0s", signature_file);
     f = $fopen(signature_file, "w");
   end
   /* verilator lint_on WIDTH */
 
   always @(posedge sck_i) begin
-    if (sig_en & (f != 0))
+    if (sig_en & (f != 0)) begin
       $fwrite(f, "%c", mem_byte_n[7:0]);
-    else if(halt_en) begin
+    end else if(halt_en) begin
       $display("Test complete");
       $finish;
     end

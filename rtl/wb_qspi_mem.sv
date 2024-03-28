@@ -212,8 +212,8 @@ always_comb begin
     end
     //---
     ACK: begin
-      cs_rom_on = 1'b1;
-      cs_ram_on = 1'b1;
+      cs_rom_on     = 1'b1;
+      cs_ram_on     = 1'b1;
       wb_mem_ack_o  = 1'b1;
       state_n       = IDLE;
     end
@@ -236,7 +236,6 @@ always_comb begin
     default dbg_ascii_state = "UNKNOWN";
   endcase
 end
-
 
 (* keep *) logic dbg_ram_rd_word;
 (* keep *) logic dbg_ram_wr_word;

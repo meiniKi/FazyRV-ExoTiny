@@ -68,7 +68,7 @@ targets:
       - SIM
       - DEBUG
       - SIGNATURE
-      - signature
+      - signature_file
     toplevel: exotiny_tb
 
 
@@ -114,7 +114,7 @@ parameters:
     description : Preload RAM with hex.
     paramtype   : plusarg
 
-  signature:
+  signature_file:
     datatype    : str
     description : Signature file.
     paramtype   : plusarg

@@ -37,10 +37,6 @@ module exotiny #(
   output logic [3:0]        mem_sd_oen_o
 );
 
-// GPIO:  0x1xxxxxxx
-// ROM:   0x0{b0xxx}xxxxxx
-// RAM:   0x0{b1xxx}xxxxxx +-> ram size
-
 logic         tirq_i = 1'b0;
 logic         trap_o;
 
@@ -78,6 +74,10 @@ logic [31:0]  wb_gpio_wdat;
 logic         sel_gpio;
 logic         sel_rom_ram;
 
+
+// GPIO:  0x1xxxxxxx
+// ROM:   0x0{b0xxx}xxxxxx
+// RAM:   0x0{b1xxx}xxxxxx +-> ram size
 
 assign sel_gpio = wb_mem_adr[28];
 assign sel_rom_ram = wb_mem_adr[27];

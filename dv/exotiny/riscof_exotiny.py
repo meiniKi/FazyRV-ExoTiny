@@ -258,7 +258,7 @@ class exotiny(pluginTemplate):
           str_rampreload = f"{test_dir}/{fname}_ram.hex"
 
           sigdump_run = 'fusesoc run --target=icarus_tb --work-root=work_sim_riscof \
-           exotiny --CHUNKSIZE={} --CONF={} --RFTYPE={} --DEBUG=1 --SIM=1 --SIGNATURE=1 --signature={} --firmware={} --rampreload={}'.format(
+           exotiny --CHUNKSIZE={} --CONF={} --RFTYPE={} --DEBUG=1 --SIM=1 --SIGNATURE=1 --signature_file={} --firmware={} --rampreload={}'.format(
             os.environ.get('RISCOF_BWIDTH', 8),
             os.environ.get('RISCOF_CONF', "MIN"),
             os.environ.get('RISCOF_RFTYPE', "BRAM"),

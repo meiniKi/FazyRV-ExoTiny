@@ -18,7 +18,7 @@ module exotiny_sim #(
   output logic [GPOCNT-1:0] gpo_o
 );
 
-localparam RAMSIZE = 16384;
+localparam RAMSIZE = 1024*1024*16;
 
 // QSPI
 logic       cs_ram_n;
