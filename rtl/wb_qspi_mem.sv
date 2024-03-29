@@ -43,11 +43,12 @@ localparam USE_CONTINUOUS_READ_MODE = 1;
 localparam INSTR_QRD = 32'b???1_???1_???1_???0_???1_???0_???1_???1; // (8'hEB == 8'b1110_1011)
 localparam INSTR_QWD = 32'b???0_???0_???1_???1_???1_???0_???0_???0; // (8'h38 == 8'b0011_1000)
 
-//localparam RAM_INSTR_TO_QSPI = 32'b???0_???0_???1_???1_???0_???1_???0_???1; // (8'h35 == 8'b0011_0101;
-localparam RAM_INSTR_TO_QSPI = 32'b0000_0000_0001_0001_0000_0001_0000_0001; // (8'h35 == 8'b0011_0101;
+localparam RAM_INSTR_TO_QSPI = 32'b???0_???0_???1_???1_???0_???1_???0_???1; // (8'h35 == 8'b0011_0101;
+//localparam RAM_INSTR_TO_QSPI = 32'b0000_0000_0001_0001_0000_0001_0000_0001; // (8'h35 == 8'b0011_0101;
 
-localparam RAM_RD_HIGHZ_CYCLES = 'd5;
-localparam ROM_RD_HIGHZ_CYCLES = 'd4;
+// If order is changed make sure to update the optimization in the fsm
+localparam RAM_RD_HIGHZ_CYCLES_VAL = 'd4;
+localparam ROM_RD_HIGHZ_CYCLES_VAL = 'd3;
 
 // Write to flash on rising clock edge
 // read data on falling edge
@@ -68,21 +69,24 @@ assign wb_mem_dat_o = { dat_r[ 7: 4], dat_r[ 3: 0],
                         dat_r[23:20], dat_r[19:16],
                         dat_r[31:28], dat_r[27:24]};
 
-logic         crm_r, crm_n;
-logic [31:0]  data_i_padded;
+logic       crm_r, crm_n;
+logic [3:0] data_i_padded [0:7];
+logic [2:0] data_idx;
 
-assign data_i_padded = {  wb_mem_dat_i[ 7: 4], wb_mem_dat_i[ 3: 0],
-                          wb_mem_dat_i[15:12], wb_mem_dat_i[11: 8],
-                          wb_mem_dat_i[23:20], wb_mem_dat_i[19:16],
-                          wb_mem_dat_i[31:28], wb_mem_dat_i[27:24]};
-
+assign data_i_padded[0] = wb_mem_dat_i[ 7: 4];
+assign data_i_padded[1] = wb_mem_dat_i[ 3: 0];
+assign data_i_padded[2] = wb_mem_dat_i[15:12];
+assign data_i_padded[3] = wb_mem_dat_i[11: 8];
+assign data_i_padded[4] = wb_mem_dat_i[23:20];
+assign data_i_padded[5] = wb_mem_dat_i[19:16];
+assign data_i_padded[6] = wb_mem_dat_i[31:28];
+assign data_i_padded[7] = wb_mem_dat_i[27:24];
 
 assign sck_o = ~clk_i; //& (state_r != IDLE) & rst_in; save area
 
-logic [4:0] data_idx;
-assign data_idx = {cnt_r - {offset, 1'b0}, 2'b00};
+assign data_idx = {offset, 1'b0} + cnt_r;
 
-assign sd_o = (state_r == DATA_W) ? data_i_padded[data_idx +: 4] : dat_r[31 -: 4];
+assign sd_o = (state_r == DATA_W) ? data_i_padded[data_idx] : dat_r[31 -: 4];
 
 logic [1:0] offset;
 assign offset = (wb_mem_be_i[0] | ~wb_mem_we_i) ? 'd0 :
@@ -90,9 +94,8 @@ assign offset = (wb_mem_be_i[0] | ~wb_mem_we_i) ? 'd0 :
                 wb_mem_be_i[2]                  ? 'd2 : 'd3 ;
 
 logic [2:0] cnt_to_write_init;
-assign cnt_to_write_init = &wb_mem_be_i                     ? 'd7 :
-                          |wb_mem_be_i & (~(&wb_mem_be_i))  ? 'd3 : 'd1;
-
+assign cnt_to_write_init =  &wb_mem_be_i ? 'd7 :
+                            ^wb_mem_be_i ? 'd1 : 'd3;
 
 generate
   if (USE_CONTINUOUS_READ_MODE) begin
@@ -107,7 +110,7 @@ always_ff @(posedge clk_i) begin
   if (~rst_in) begin
     state_r   <= INIT;
     crm_r     <= 'b0;
-    cnt_r     <= 'd7;
+    cnt_r     <= 'd0;
     dat_r     <= RAM_INSTR_TO_QSPI;
   end else begin
     state_r   <= state_n;
@@ -124,7 +127,7 @@ always_comb begin
   wb_mem_ack_o  = 1'b0;
 
   state_n       = state_r;
-  cnt_n         = cnt_r - 'b1;
+  cnt_n         = cnt_r + 'b1;
   dat_n         = (dat_r << 'd4);
   crm_n         = crm_r;
 
@@ -133,7 +136,7 @@ always_comb begin
       sd_oen_o    = 4'b0001;
       cs_rom_on   = 1'b1;
       cs_ram_on   = 1'b0 | ~rst_in;
-      if (cnt_r == 'h0) begin
+      if (cnt_r == 'd7) begin
         state_n = IDLE;
       end
     end
@@ -143,7 +146,7 @@ always_comb begin
       cs_ram_on = 1'b1;
       if (wb_mem_stb_i == 1'b1) begin
         state_n = INSTR;
-        cnt_n   = 'd7;
+        cnt_n   = 'd0;
 
         if (wb_mem_we_i) begin
           // CASE: write to RAM
@@ -163,50 +166,46 @@ always_comb begin
     //---
     INSTR: begin
       sd_oen_o  = 4'b0001;
-      if (cnt_r == 'h0) begin
+      if (cnt_r == 'd7) begin
         state_n = ADDR;
         dat_n   = adr_init;
         crm_n   = crm_r | (~sel_rom_ram_i & USE_CONTINUOUS_READ_MODE);
-        if (sel_rom_ram_i)  cnt_n = 'd5;
-        else                cnt_n = 'd7;
+        cnt_n   = 'd0;
       end
     end
     //---
     ADDR: begin
       sd_oen_o  = 4'b1111;
-      if (cnt_r == 'h0) begin
-        dat_n = data_i_padded; // only needed when writing in case smaller
+      if ( (sel_rom_ram_i & (cnt_r == 'd5)) | (cnt_r == 'd7) ) begin
+        cnt_n = 'd0;
         if (wb_mem_we_i) begin
           // write: must be ram here
           state_n = DATA_W;
-          cnt_n   = cnt_to_write_init;
         end else begin
           // read
           state_n = DUMMY;
-          if (sel_rom_ram_i)  cnt_n = (RAM_RD_HIGHZ_CYCLES - 'd1);
-          else                cnt_n = (ROM_RD_HIGHZ_CYCLES - 'd1);
         end
       end
     end
     //---
     DUMMY: begin
-      if (cnt_r == 'h0) begin
+      if ( (~sel_rom_ram_i & (cnt_r == ROM_RD_HIGHZ_CYCLES_VAL)) | (cnt_r == RAM_RD_HIGHZ_CYCLES_VAL) )  begin
         // must be a read here
         state_n = DATA_R;
-        cnt_n   = 'd7;
+        cnt_n   = 'd0;
       end
     end
     //---
     DATA_R: begin
       dat_n = {dat_r[27:0], sd_i};  // shift in this way to just have one shift direction
-      if (cnt_r == 'h0) begin
+      if (cnt_r == 'd7) begin
         state_n = ACK;
       end
     end
     //---
     DATA_W: begin
       sd_oen_o = 4'b1111;
-      if (cnt_r == 'h0) begin
+      if (cnt_r == cnt_to_write_init) begin
         state_n = ACK;
       end
     end

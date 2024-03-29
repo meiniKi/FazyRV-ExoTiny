@@ -26,7 +26,7 @@ end
 
 initial begin
   //if ($test$plusargs("vcd")) begin
-    $dumpfile("tb.fst");
+    $dumpfile("tb.vcd");
     $dumpvars(0, exotiny_tb);
   //end
   //repeat (600000) @(posedge clk);
@@ -52,7 +52,7 @@ always_ff @(posedge clk) begin
   end
 end
 
-`ifdef SIGNATURE
+`ifndef SIGNATURE
 always_ff @(posedge clk) begin
   if (shift_reg == {"D", "O", "N", "E"}) begin
     $finish;

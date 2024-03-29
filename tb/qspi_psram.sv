@@ -53,7 +53,6 @@ logic [1023:0] rampreload_file;
 initial begin
   if (!$value$plusargs("rampreload=%s", rampreload_file))
     rampreload_file = "rampreload.hex";
-  $readmemh(rampreload_file, mem_r);
 end
 
 logic [7:0] mem_byte_r, mem_byte_n;
