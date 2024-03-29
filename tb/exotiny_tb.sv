@@ -26,7 +26,7 @@ end
 
 initial begin
   //if ($test$plusargs("vcd")) begin
-    $dumpfile("tb.vcd");
+    $dumpfile("tb.fst");
     $dumpvars(0, exotiny_tb);
   //end
   //repeat (600000) @(posedge clk);
