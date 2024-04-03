@@ -1,0 +1,149 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Fri Mar 15 15:54:03 2024
+[*]
+[dumpfile] "/home/meinhard/Documents/repos/FazyRV-ExoTiny/sim/tb.vcd"
+[dumpfile_mtime] "Fri Mar 15 15:53:16 2024"
+[dumpfile_size] 13048493
+[savefile] "/home/meinhard/Documents/repos/FazyRV-ExoTiny/misk/tb.gtkw"
+[timestart] 12212200
+[size] 2560 1415
+[pos] -1 -1
+*-16.000000 12650300 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] exotiny_tb.
+[treeopen] exotiny_tb.i_exotiny_sim.
+[treeopen] exotiny_tb.i_exotiny_sim.i_exotiny.
+[treeopen] exotiny_tb.i_exotiny_sim.i_exotiny.i_fazyrv_top.
+[treeopen] exotiny_tb.i_exotiny_sim.i_exotiny.i_fazyrv_top.genblk3.
+[treeopen] exotiny_tb.i_exotiny_sim.i_exotiny.i_fazyrv_top.genblk6.
+[treeopen] exotiny_tb.i_exotiny_sim.i_exotiny.i_fazyrv_top.i_fazyrv_core.
+[treeopen] exotiny_tb.i_exotiny_sim.i_exotiny.i_fazyrv_top.i_fazyrv_core.genblk4.
+[sst_width] 303
+[signals_width] 323
+[sst_expanded] 1
+[sst_vpaned_height] 429
+@22
+exotiny_tb.i_exotiny_sim.i_exotiny.i_fazyrv_top.i_fazyrv_core.genblk4.i_fazyrv_decode.instr_i[31:0]
+@28
+exotiny_tb.i_exotiny_sim.i_exotiny.i_fazyrv_top.i_fazyrv_core.genblk4.i_fazyrv_decode.stb_cntrl_i
+exotiny_tb.i_exotiny_sim.i_exotiny.i_fazyrv_top.i_fazyrv_core.genblk4.i_fazyrv_decode.stb_ir_i
+@820
+exotiny_tb.i_exotiny_sim.i_exotiny.i_fazyrv_top.i_fazyrv_core.dbg_ascii_insn_r[127:0]
+@28
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.clk_i
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.rst_in
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.wb_mem_stb_i
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.wb_mem_ack_o
+@29
+[color] 5
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.wb_mem_we_i
+@c00022
+exotiny_tb.i_exotiny_sim.i_exotiny.i_fazyrv_top.wb_dmem_be_o[3:0]
+@28
+(0)exotiny_tb.i_exotiny_sim.i_exotiny.i_fazyrv_top.wb_dmem_be_o[3:0]
+(1)exotiny_tb.i_exotiny_sim.i_exotiny.i_fazyrv_top.wb_dmem_be_o[3:0]
+(2)exotiny_tb.i_exotiny_sim.i_exotiny.i_fazyrv_top.wb_dmem_be_o[3:0]
+(3)exotiny_tb.i_exotiny_sim.i_exotiny.i_fazyrv_top.wb_dmem_be_o[3:0]
+@1401200
+-group_end
+@22
+exotiny_tb.i_exotiny_sim.i_exotiny.i_fazyrv_top.i_fazyrv_core.i_fazyrv_pc.pc_r[31:0]
+exotiny_tb.i_exotiny_sim.i_exotiny.i_fazyrv_top.i_fazyrv_core.wb_dmem_adr_o[31:0]
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.wb_mem_adr_i[21:0]
+@200
+---- spi ---
+@28
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.sel_rom_ram_i
+@22
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.wb_mem_dat_i[31:0]
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.sd_i[3:0]
+@800022
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.sd_o[3:0]
+@28
+(0)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.sd_o[3:0]
+(1)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.sd_o[3:0]
+(2)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.sd_o[3:0]
+(3)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.sd_o[3:0]
+@1001200
+-group_end
+@22
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.wb_mem_dat_o[31:0]
+@820
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.dbg_ascii_state[127:0]
+@24
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.cnt_r[2:0]
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.state_n[31:0]
+@28
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.crm_r
+@24
+exotiny_tb.i_exotiny_sim.i_spiflash.bytecount
+@28
+exotiny_tb.i_exotiny_sim.i_spiflash.csb
+exotiny_tb.i_exotiny_sim.i_spiflash.clk
+@22
+exotiny_tb.i_exotiny_sim.i_spiflash.buffer[7:0]
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.sd_oen_o[3:0]
+@28
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.cs_rom_on
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.cs_ram_on
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.sck_o
+@c00022
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+@28
+(0)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(1)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(2)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(3)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(4)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(5)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(6)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(7)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(8)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(9)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(10)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(11)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(12)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(13)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(14)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(15)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(16)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(17)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(18)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(19)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(20)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(21)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(22)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(23)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(24)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(25)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(26)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(27)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(28)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(29)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(30)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+(31)exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.adr_init[31:0]
+@1401200
+-group_end
+@28
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.offset[1:0]
+@24
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.data_idx[4:0]
+@22
+exotiny_tb.i_exotiny_sim.i_exotiny.i_wb_qspi_mem.wb_mem_be_i[3:0]
+@200
+---- RAM ---
+@24
+exotiny_tb.i_exotiny_sim.i_qspi_psram.state_r[31:0]
+@820
+exotiny_tb.i_exotiny_sim.i_qspi_psram.dbg_ascii_state[127:0]
+@28
+exotiny_tb.i_exotiny_sim.i_qspi_psram.qspi_unlocked_r
+exotiny_tb.i_exotiny_sim.i_qspi_psram.qspi_unlocked_n
+@22
+exotiny_tb.i_exotiny_sim.i_qspi_psram.cmd_n[7:0]
+exotiny_tb.i_exotiny_sim.i_qspi_psram.cmd_r[7:0]
+@28
+exotiny_tb.i_exotiny_sim.i_qspi_psram.io0_io
+exotiny_tb.i_exotiny_sim.i_qspi_psram.io0_oen
+[pattern_trace] 1
+[pattern_trace] 0
