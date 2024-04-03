@@ -14,8 +14,8 @@ SRC_CORE 	= $(wildcard $(CORE)/*.v $(CORE)/*.sv)
 SRC_DESIGN 	= $(wildcard ../rtl/*.v ../rtl/*.sv)
 SRC_SIM 	= $(wildcard ../tb/*.v ../tb/*.sv)
 
-CHUNKSIZE	?= 8
-RFTYPE 		?= BRAM_BP
+CHUNKSIZE	?= 2
+RFTYPE 		?= BRAM
 CONF 		?= MIN
 MEMDLY1		?= 0
 WITH_CSR 	?= 0

@@ -1,17 +1,37 @@
-
-// ROM:
-//  * Assume: Flash SPI is set to QSPI, i.e., QE high, non-volatile
-
-// Write to RAM: Problem is be != 4'hF
-// * sending addr for each byte too slow
-// * thus, we read the word and
-// * write back the modifed version
-// -> some overhead but better trade-off
-
+// Copyright (c) 2023 - 2024 Meinhard Kissich
+// SPDX-License-Identifier: MIT
+// -----------------------------------------------------------------------------
+// File  :  wb_qspi_mem.sv
+// Usage :  Minimal Wishbone<->QSPI adapter for ExoTiny ROM and RAM accesses. 
+// Ports
+//   - clk_i          Clock input.
+//   - rst_in         Reset, low active.
+//   - sel_rom_ram_i  Select ROM (0) or RAM (1) for the next strobe.
+//                    The value must be consistent while stb_i is high.
+//   - wb_mem_stb_i   Wishbone strobe.
+//   - wb_mem_we_i    Wishbone write enable.
+//   - wb_mem_ack_o   Wishbone acknowledge.
+//   - wb_mem_be_i    Wishbone byte enable.
+//                    For reads, all bytes are read. Writes only write the bytes
+//                    where be is high.
+//   - wb_mem_dat_i   Wishbone data to memory.
+//   - wb_mem_adr_i   Wishbone address (word address).  
+//   - wb_mem_dat_o   Wishbone data from memory.
+//   - cs_ram_on      Low-active chip select to RAM.
+//   - cs_rom_on      Low-active chip select to ROM.
+//   - sck_o          QSPI clock.
+//   - sd_i           QSPI serial input (from memory).
+//   - sd_o           QSPI serial output (to memory).
+//   - sd_oen_o       QSPI output enable (set data direction);
+//                    keep tri-state buffers at the top level.
+//
 // Limitations
-// * Writes to ROM write to the same address in RAM, take care
-//   if be[3:0] != 'b1111 it may also read data from flash and writes it to the RAM
-//   assume be[3:0] != 'b0000
+//   - only be combinations for sw, sh, sb according to the RISC-V ISA are
+//     supported. Any other combinations (e.g., be==0101) may fail.
+//   - Assumes ROM is set to QSPI mode, i.e., QE high (non-volatile)
+//   - Writes to ROM (i.e., ~sel_rom_ram_i & wb_mem_we_i) causes a write
+//     to the same address in RAM. Make sure that this case cannot occur.
+// -----------------------------------------------------------------------------
 
 module wb_qspi_mem (
   input  logic        clk_i,
@@ -89,9 +109,12 @@ assign data_idx = {offset, 1'b0} + cnt_r;
 assign sd_o = (state_r == DATA_W) ? data_i_padded[data_idx] : dat_r[31 -: 4];
 
 logic [1:0] offset;
-assign offset = (wb_mem_be_i[0] | ~wb_mem_we_i) ? 'd0 :
-                wb_mem_be_i[1]                  ? 'd1 :
-                wb_mem_be_i[2]                  ? 'd2 : 'd3 ;
+//assign offset = (wb_mem_be_i[0] | ~wb_mem_we_i) ? 'd0 :
+//                wb_mem_be_i[1]                  ? 'd1 :
+//                wb_mem_be_i[2]                  ? 'd2 : 'd3 ;
+// Optimized:
+assign offset[0] = ~(wb_mem_be_i[0] | ~wb_mem_we_i | wb_mem_be_i[2]);
+assign offset[1] = ~(wb_mem_be_i[0] | ~wb_mem_we_i | wb_mem_be_i[1]);
 
 logic [2:0] cnt_to_write_init;
 assign cnt_to_write_init =  &wb_mem_be_i ? 'd7 :
@@ -149,7 +172,7 @@ always_comb begin
         cnt_n   = 'd0;
 
         if (wb_mem_we_i) begin
-          // CASE: write to RAM
+          // Case: write to RAM
           dat_n = INSTR_QWD;
         end else begin
           // Case B: read from RAM or ROM in non-continuous mode
