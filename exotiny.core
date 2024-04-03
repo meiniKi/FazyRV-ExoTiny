@@ -27,6 +27,19 @@ filesets:
       - tb/exotiny_tb.sv
     file_type: systemVerilogSource
 
+  demo_icebreaker:
+    files:
+      - demo/icebreaker/demo_exotiny_icebreaker.sv
+    file_type: systemVerilogSource
+
+  demo_sim:
+    files:
+      - tb/spiflash.v
+      - tb/qspi_psram.sv
+      - tb/exotiny_sim.sv
+      - demo/sim/demo_exotiny_tb.sv
+    file_type: systemVerilogSource
+
 targets:
   verilator_tb:
     filesets: [soc, verilator_tb]
@@ -70,6 +83,32 @@ targets:
       - SIGNATURE
       - signature_file
     toplevel: exotiny_tb
+
+  demo_icebreaker:
+    filesets: [soc, demo_icebreaker]
+    default_tool: icestorm
+    tools:
+      icestorm:
+        nextpnr_options: [--up5k, --freq, 12]
+        pnr: next
+    parameters:
+      - firmware
+      - SIM
+      - DEBUG
+    toplevel: demo_exotiny_icebreaker
+
+  demo_sim:
+    filesets: [soc, demo_sim]
+    flow: sim
+    flow_options:
+      tool: icarus
+      iverilog_options:
+        - "-g2005-sv"
+    parameters:
+      - firmware
+      - SIM
+      - DEBUG
+    toplevel: demo_exotiny_tb
 
 
 parameters:
