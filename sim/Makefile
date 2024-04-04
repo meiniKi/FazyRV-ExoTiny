@@ -27,7 +27,7 @@ test_vcd: testbench.vvp firmware/rom.hex
 	$(VVP) -N $< +vcd +noerror +firmware=firmware/rom.hex
 
 testbench.vvp: $(SRC_CORE) $(SRC_DESIGN) $(SRC_SIM) 
-	$(IVERILOG) -g2005-sv -DSIM -DDEBUG -Pexotiny_tb.CHUNKSIZE=$(CHUNKSIZE) -Pexotiny_tb.RFTYPE=\"$(RFTYPE)\" -Pexotiny_tb.CONF=\"$(CONF)\" -Pexotiny_tb.MEMDLY1=$(MEMDLY1) -o $@ $^
+	$(IVERILOG) -g2005-sv -DSIM -DDEBUG -Pexotiny_tb.CHUNKSIZE=$(CHUNKSIZE) -Pexotiny_tb.RFTYPE=\"$(RFTYPE)\" -Pexotiny_tb.CONF=\"$(CONF)\" -o $@ $^
 	chmod -x $@
 
 firmware/rom.hex: firmware/firmware.elf firmware/makehex.py

@@ -16,7 +16,7 @@ module exotiny_tb #(
 logic clk   = 1'b0;
 logic rst_n = 1'b0;
 
-always #5 clk = ~clk;
+always #10 clk = ~clk;
 
 initial begin
   rst_n <= 1'b0;
@@ -26,7 +26,7 @@ end
 
 initial begin
   //if ($test$plusargs("vcd")) begin
-    $dumpfile("tb.fst");
+    $dumpfile("tb.vcd");
     $dumpvars(0, exotiny_tb);
   //end
   //repeat (600000) @(posedge clk);
