@@ -1,3 +1,6 @@
 [submodule "FazyRV"]
 	path = FazyRV
 	url = git@github.com:meiniKi/FazyRV.git
+[submodule "peripherals/kronos"]
+	path = peripherals/kronos
+	url = https://github.com/SonalPinto/kronos.git
