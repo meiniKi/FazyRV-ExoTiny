@@ -10,12 +10,10 @@ module exotiny_sim #(
   parameter CHUNKSIZE = 8,
   parameter CONF      = "MIN",
   parameter RFTYPE    = "BRAM",
-  parameter GPOCNT    = 1
+  parameter GPOCNT    = 6
 ) (
   input  logic              clk_i,
-  input  logic              rst_in,
-  input  logic              gpi_i,
-  output logic [GPOCNT-1:0] gpo_o
+  input  logic              rst_in
 );
 
 localparam RAMSIZE = 1024*1024*16;
@@ -26,6 +24,16 @@ logic       cs_rom_n;
 logic       sck;
 logic [3:0] core_sdo;
 logic [3:0] core_sdoen;
+
+// SPI
+logic       spi_sck;
+logic       spi_sdo;
+logic       spi_sdi;
+
+// GPIO
+logic [5:0] gpi;
+logic [5:0] gpo;
+
 
 wire [3:0] sdio;
 assign sdio[0] = core_sdoen[0] ? core_sdo[0] : 1'bz;
@@ -56,19 +64,30 @@ exotiny #(
   .CHUNKSIZE  ( CHUNKSIZE ),
   .CONF       ( CONF      ),
   .RFTYPE     ( RFTYPE    ),
-  .GPOCNT     ( 'd1       )
+  .GPOCNT     ( GPOCNT    )
 ) i_exotiny (
   .clk_i          ( clk_i   ),
   .rst_in         ( rst_in  ),
-  .gpi_i          ( gpi_i   ),
-  .gpo_o          ( gpo_o   ),
+  .gpi_i          ( gpi     ),
+  .gpo_o          ( gpo     ),
 
   .mem_cs_ram_on  ( cs_ram_n    ),
   .mem_cs_rom_on  ( cs_rom_n    ),
   .mem_sck_o      ( sck         ),
   .mem_sd_i       ( sdio        ),
   .mem_sd_o       ( core_sdo    ),
-  .mem_sd_oen_o   ( core_sdoen  )
+  .mem_sd_oen_o   ( core_sdoen  ),
+
+  .spi_sck_o      ( spi_sck     ),
+  .spi_sdo_o      ( spi_sdo     ),
+  .spi_sdi_i      ( spi_sdi     )
 );
+
+// conditional loopback for testing
+assign spi_sdi =  gpo[1] ? 8'h55 : 
+                  gpo[0] ? 8'hAA : spi_sdo;
+
+assign gpi =  gpo[1] ? 6'h15 : 
+              gpo[0] ? 6'h2A : 'h0;
 
 endmodule

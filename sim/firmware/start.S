@@ -81,6 +81,11 @@ _start:
     n ## _ret:
 #endif
 
+    TEST(gpo)
+    TEST(gpi)
+    TEST(spic)
+    TEST(spid)
+
     TEST(lui)
     TEST(auipc)
     TEST(j)
@@ -138,8 +143,12 @@ _start:
     #TEST(remu)
     #TEST(simple)
 
+    /* basic peripheral tests */
+
+
+
 	/* print "DONE\n" */
-	lui a0,0x10000000>>12
+	lui a0,0x20000000>>12
 	addi a1,zero,'D'
 	addi a2,zero,'O'
 	addi a3,zero,'N'

@@ -75,6 +75,7 @@ logic         wb_regs_we;
 logic         wb_regs_ack;
 logic [3:0]   wb_regs_be;
 logic [31:0]  wb_regs_rdat;
+logic [31:0]  wb_regs_adr;
 logic [31:0]  wb_regs_wdat;
 
 logic         wb_spi_cyc;
@@ -90,18 +91,22 @@ logic         sel_mem;
 logic         sel_regs;
 logic         sel_spi;
 
-logic [7:0]   spi_presc;
+logic         spi_rdy;
+logic [1:0]   spi_size;
+logic [3:0]   spi_presc;
 logic         spi_cpol;
 logic         spi_cpha;
-logic         spi_tx_clr;
-logic         spi_rx_clr;
-logic [3:0]   spi_tx_size;
-logic [3:0]   spi_rx_size;
+logic         spi_auto_cs;
+
+logic [GPICNT-1:0]  gpo;
+logic               spi_cs;
+
+assign gpo_o = {gpo[GPICNT-1]|spi_cs, gpo[GPICNT-2:0]};
 
 // SPI:  0x{0b0100}xxxxxxx
 // REGS: 0x{0b0010}xxxxxxx
-// ROM:  0x{0b0001}xxxxxxx
-// RAM:  0x{0b0000}xxxxxxx +-> ram size
+// RAM:  0x{0b0001}xxxxxxx +-> ram size
+// ROM:  0x{0b0000}xxxxxxx
 
 assign sel_mem  = ~|wb_mem_adr[30:29];
 assign sel_spi  = wb_mem_adr[30];
@@ -122,8 +127,9 @@ assign wb_mem_be    = wb_cpu_dmem_be | {4{wb_cpu_imem_stb}};
 assign wb_mem_we    = wb_cpu_dmem_we & wb_cpu_dmem_stb;
 assign wb_mem_stb   = sel_mem & (wb_cpu_imem_stb | wb_cpu_dmem_stb);
 
+assign wb_regs_adr  = wb_cpu_dmem_adr;
 assign wb_regs_cyc  = sel_regs & wb_cpu_dmem_stb;
-assign wb_regs_stb  = wb_gpio_cyc;
+assign wb_regs_stb  = wb_regs_cyc;
 assign wb_regs_we   = wb_cpu_dmem_we;
 assign wb_regs_be   = wb_cpu_dmem_be;
 assign wb_regs_wdat = wb_cpu_dmem_wdat;
@@ -154,7 +160,6 @@ wb_qspi_mem i_wb_qspi_mem (
   .sd_oen_o       ( mem_sd_oen_o  )
 );
 
-
 wb_regs i_wb_regs (
   .rst_in         ( rst_in ),
   .clk_i          ( clk_i ),
@@ -162,47 +167,45 @@ wb_regs i_wb_regs (
   .wb_regs_stb_i  ( wb_regs_stb       ),
   .wb_regs_we_i   ( wb_regs_we        ),
   .wb_regs_ack_o  ( wb_regs_ack       ),
-  .wb_regs_adr_i  ( wb_regs_adr[2:0]  ),
+  .wb_regs_adr_i  ( wb_regs_adr[4:2]  ),
   .wb_regs_be_i   ( wb_regs_be        ),
-  .wb_regs_dat_i  ( wb_regs_dat       ),
-  .wb_regs_dat_o  ( wb_regs_dat       ),
+  .wb_regs_dat_i  ( wb_regs_wdat      ),
+  .wb_regs_dat_o  ( wb_regs_rdat      ),
   // gpio
   // already synchronized from tt frame
   .gpi_i          ( gpi_i             ),  
-  .gpo_o          ( gpo_o             ),
+  .gpo_o          ( gpo               ),
   // spi
+  .spi_rdy_i      ( spi_rdy           ),
   .spi_presc_o    ( spi_presc         ),
   .spi_cpol_o     ( spi_cpol          ),
   .spi_cpha_o     ( spi_cpha          ),
-  .spi_tx_clr_o   ( spi_tx_clr        ),
-  .spi_rx_clr_o   ( spi_rx_clr        ),
-  .spi_tx_size_i  ( spi_tx_size       ),
-  .spi_rx_size_i  ( spi_rx_size       )
+  .spi_auto_cs_o  ( spi_auto_cs       ),
+  .spi_size_o     ( spi_size          )
 );
 
 
-wb_spi_master #(
-  .BUFFER           ( 'd4 ),
-  .PRESCALER_WIDTH  ( 'd8 )
-) i_wb_spi_master (
-  .clk      ( clk_i         ),
-  .rstz     ( rst_in        ),
-  // phy
-  .sclk     ( spi_sck_o         ),
-  .mosi     ( spi_sdo_o         ),
-  .miso     ( spi_sdi_i         ),
-  .prescaler( spi_presc         ),
-  .cpol     ( spi_cpol          ),
-  .cpha     ( spi_cpha          ),
-  .tx_clear ( spi_tx_clr        ),
-  .rx_clear ( spi_rx_clr        ),
-  .tx_size  ( spi_tx_size       ),
-  .rx_size  ( spi_rx_size       ),
-  .dat_i    ( wb_spi_wdat[7:0]  ),
-  .dat_o    ( wb_spi_rdat       ),
-  .we_i     ( wb_spi_we         ),
-  .stb_i    ( wb_spi_stb        ),
-  .ack_o    ( wb_spi_ack        )
+wb_spi i_wb_spi (
+  .rst_in         ( rst_in      ),
+  .clk_i          ( clk_i       ),
+  .wb_spi_cyc_i   ( wb_spi_cyc  ),
+  .wb_spi_stb_i   ( wb_spi_stb  ),
+  .wb_spi_we_i    ( wb_spi_we   ),
+  .wb_spi_ack_o   ( wb_spi_ack  ),
+  .wb_spi_dat_i   ( wb_spi_wdat ),
+  .wb_spi_dat_o   ( wb_spi_rdat ),
+  // spi config
+  .presc_i        ( spi_presc   ),
+  .size_i         ( spi_size    ),
+  .cpol_i         ( spi_cpol    ),
+  .cpha_i         ( spi_cpha    ),
+  .auto_cs_i      ( spi_auto_cs ),
+  .rdy_o          ( spi_rdy     ),
+  // spi data
+  .spi_cs_o       ( spi_cs      ),
+  .spi_sck_o      ( spi_sck_o   ),
+  .spi_sdo_o      ( spi_sdo_o   ),
+  .spi_sdi_i      ( spi_sdi_i   )
 );
 
 

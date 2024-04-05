@@ -40,14 +40,14 @@ reg prev_cpu_dmem_stb;
 
 always @(posedge clk) begin
   prev_cpu_dmem_stb <= i_exotiny_sim.i_exotiny.wb_cpu_dmem_stb;
-  if (i_exotiny_sim.i_exotiny.sel_gpio & ~prev_cpu_dmem_stb & i_exotiny_sim.i_exotiny.wb_cpu_dmem_stb) begin
+  if (~|i_exotiny_sim.i_exotiny.wb_regs_adr[4:0] & i_exotiny_sim.i_exotiny.sel_regs & ~prev_cpu_dmem_stb & i_exotiny_sim.i_exotiny.wb_cpu_dmem_stb) begin
     $write("%c", i_exotiny_sim.i_exotiny.wb_mem_wdat);
     $fflush();
   end
 end
 
 always_ff @(posedge clk) begin
-  if (i_exotiny_sim.i_exotiny.sel_gpio & ~prev_cpu_dmem_stb & i_exotiny_sim.i_exotiny.wb_cpu_dmem_stb) begin
+  if (~|i_exotiny_sim.i_exotiny.wb_regs_adr[4:0] && i_exotiny_sim.i_exotiny.sel_regs & ~prev_cpu_dmem_stb & i_exotiny_sim.i_exotiny.wb_cpu_dmem_stb) begin
     shift_reg <= {shift_reg[23:0], i_exotiny_sim.i_exotiny.wb_cpu_dmem_wdat[7:0]};  // shift in new data
   end
 end
@@ -67,12 +67,10 @@ exotiny_sim #(
   .CHUNKSIZE  ( CHUNKSIZE ),
   .CONF       ( CONF      ),
   .RFTYPE     ( RFTYPE    ),
-  .GPOCNT     (  'd1      )
+  .GPOCNT     (  'd6      )
 ) i_exotiny_sim (
   .clk_i      ( clk   ),
-  .rst_in     ( rst_n ),
-  .gpi_i      ( ),
-  .gpo_o      ( )
+  .rst_in     ( rst_n )
 );
 
 
