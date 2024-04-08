@@ -17,25 +17,15 @@ RVTEST_CODE_BEGIN
   # spi_data, currently relies on manual inspection
   #-------------------------------------------------------------
 
-  # auto CS, ~cpol, ~cpha, spi 0xAA, 1 byte
+  # auto CS, ~cpol, spi 0xAA, 1 byte
   TEST_ST_OP( 2, lw, sw, 0x00000001, 0, 0x20000000 );
   TEST_ST_OP( 3, lw, sw, 0x00010401, 0, 0x20000008 );
   TEST_ST_RD( 4, lw, sw, 0x750000FF, 0xAAAAAAAA, 0, 0x40000000 );
 
-  # auto CS, cpol, ~cpha, spi 0xAA, 1 byte
+  # auto CS, cpol, spi 0xAA, 1 byte
   TEST_ST_OP( 5, lw, sw, 0x00000001, 0, 0x20000000 );
   TEST_ST_OP( 6, lw, sw, 0x00010601, 0, 0x20000008 );
   TEST_ST_RD( 7, lw, sw, 0x750000FF, 0xAAAAAAAA, 0, 0x40000000 );
-
-  # auto CS, ~cpol, cpha, spi 0xAA, 1 byte
-  TEST_ST_OP( 8, lw, sw, 0x00000001, 0, 0x20000000 );
-  TEST_ST_OP( 9, lw, sw, 0x00010501, 0, 0x20000008 );
-  TEST_ST_RD(10, lw, sw, 0x750000FF, 0xAAAAAAAA, 0, 0x40000000 );
-
-  # auto CS, cpol, cpha, spi 0xAA, 1 byte
-  TEST_ST_OP(11, lw, sw, 0x00000001, 0, 0x20000000 );
-  TEST_ST_OP(12, lw, sw, 0x00010701, 0, 0x20000008 );
-  TEST_ST_RD(13, lw, sw, 0x750000FF, 0xAAAAAAAA, 0, 0x40000000 );
 
 
   TEST_PASSFAIL

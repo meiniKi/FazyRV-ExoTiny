@@ -23,7 +23,6 @@
 //  - presc_i       Spi prescaler.
 //  - size_i        Spi rx/tx size in bytes.
 //  - cpol_i        Spi CPOL.
-//  - cpha_i        Spi CPHA.
 //  - auto_cs_i     Spi automatically assert CS.
 //  - rdy_o         Spi is ready.
 //  - spi_cs_o      Spi phy CS.
@@ -45,7 +44,6 @@ module wb_spi (
   input  logic [3:0]  presc_i,
   input  logic [1:0]  size_i,
   input  logic        cpol_i,
-  input  logic        cpha_i,
   input  logic        auto_cs_i,
   output logic        rdy_o,
   // spi data
@@ -65,7 +63,7 @@ logic sck_r;
 logic tick;
 logic done;
 
-enum int unsigned { IDLE, DLY, ACT } state_r, state_n;
+enum int unsigned { IDLE, ACT } state_r, state_n;
 
 assign wb_spi_dat_o = dat_rx_r;
 assign wb_spi_ack_o = wb_spi_stb_i & wb_spi_cyc_i;
@@ -80,7 +78,7 @@ assign done         = (state_r == ACT) & (state_n != ACT);
 always_comb begin
   dat_rx_n    = dat_rx_r;
   dat_tx_n    = dat_tx_r;
-  cnt_hbit_n   = cnt_hbit_r;
+  cnt_hbit_n  = cnt_hbit_r;
   state_n     = state_r;
   cnt_presc_n = cnt_presc_r - 'b1;
 
@@ -89,20 +87,12 @@ always_comb begin
     IDLE: begin
       if (wb_spi_cyc_i & wb_spi_stb_i & wb_spi_we_i) begin
         dat_tx_n    = wb_spi_dat_i;
-        if (cpha_i) state_n = DLY;
-        else        state_n = ACT;
+        state_n = ACT;
         cnt_presc_n = (presc_i << 3);
         cnt_hbit_n  = (size_i << 4);
       end
     end
     // ---
-    DLY: begin
-      if (tick) begin
-        cnt_hbit_n  = cnt_hbit_r - 'b1;
-        state_n     = ACT;
-        cnt_presc_n = (presc_i << 3);
-      end
-    end
     ACT: begin
       if (tick) begin
         cnt_hbit_n  = cnt_hbit_r - 'b1;
@@ -111,7 +101,7 @@ always_comb begin
         end 
         cnt_presc_n = (presc_i << 3);
 
-        if ((cnt_hbit_r[0] & ~cpha_i) | (~cnt_hbit_r[0] & cpha_i)) begin
+        if (cnt_hbit_r[0]) begin
           dat_tx_n    = dat_tx_r << 1;
           dat_rx_n    = {dat_rx_r[31:1], spi_sdi_i};
         end

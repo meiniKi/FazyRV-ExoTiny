@@ -95,7 +95,6 @@ logic         spi_rdy;
 logic [1:0]   spi_size;
 logic [3:0]   spi_presc;
 logic         spi_cpol;
-logic         spi_cpha;
 logic         spi_auto_cs;
 
 logic [GPICNT-1:0]  gpo;
@@ -179,7 +178,6 @@ wb_regs i_wb_regs (
   .spi_rdy_i      ( spi_rdy           ),
   .spi_presc_o    ( spi_presc         ),
   .spi_cpol_o     ( spi_cpol          ),
-  .spi_cpha_o     ( spi_cpha          ),
   .spi_auto_cs_o  ( spi_auto_cs       ),
   .spi_size_o     ( spi_size          )
 );
@@ -198,7 +196,6 @@ wb_spi i_wb_spi (
   .presc_i        ( spi_presc   ),
   .size_i         ( spi_size    ),
   .cpol_i         ( spi_cpol    ),
-  .cpha_i         ( spi_cpha    ),
   .auto_cs_i      ( spi_auto_cs ),
   .rdy_o          ( spi_rdy     ),
   // spi data
