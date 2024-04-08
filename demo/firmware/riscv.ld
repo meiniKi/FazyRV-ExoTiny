@@ -7,7 +7,7 @@ ENTRY(_start)
 
 MEMORY {
 	rom (rx)    : ORIGIN = 0x00000000, LENGTH = 0x00018000
-	ram (xrw)   : ORIGIN = 0x08000000, LENGTH = 0x00020000
+	ram (xrw)   : ORIGIN = 0x10000000, LENGTH = 0x00020000
 }
 
 SECTIONS

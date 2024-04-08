@@ -90,6 +90,7 @@ always_ff @(posedge clk_i) begin
     spi_presc_r   <= 8'd11;
     spi_cpol_r    <= 1'b0;  // mode 0
     spi_cpha_r    <= 1'b0;
+    gpo_r         <= 'b0;
   end
   else begin
     if (wb_regs_cyc_i & wb_regs_stb_i & wb_regs_we_i) begin

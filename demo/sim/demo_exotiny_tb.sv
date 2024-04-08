@@ -8,14 +8,12 @@
 
 module demo_exotiny_tb;
 
-localparam CHUNKSIZE  = 4;
+localparam CHUNKSIZE  = 2;
 localparam RFTYPE     = "LOGIC";
 localparam CONF       = "MIN";
 
 logic clk   = 1'b0;
 logic rst_n = 1'b0;
-
-(* keep *) logic gpo;
 
 always #20 clk = ~clk;
 
@@ -33,13 +31,10 @@ end
 exotiny_sim #( 
   .CHUNKSIZE ( CHUNKSIZE  ),
   .CONF      ( CONF       ),
-  .RFTYPE    ( RFTYPE     ),
-  .GPOCNT    ( 1          )
+  .RFTYPE    ( RFTYPE     )
 ) i_exotiny_sim (
   .clk_i      ( clk   ),
-  .rst_in     ( rst_n ),
-  .gpi_i      ( 1'b0  ),
-  .gpo_o      ( gpo   )
+  .rst_in     ( rst_n )
 );
 
 endmodule

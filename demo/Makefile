@@ -8,8 +8,8 @@ demo.sim:
 	$(MAKE) -C firmware
 	fusesoc run --target=demo_sim exotiny --firmware=$(shell pwd)/firmware/build/firmware.hex --DEBUG --SIM
 
-demo.icebreaker:
-	fusesoc run --target=demo_icebreaker exotiny
+demo.icoboard:
+	fusesoc run --target=demo_icoboard exotiny
 
 clean:
 	$(MAKE) -C firmware clean

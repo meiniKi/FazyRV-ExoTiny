@@ -5,8 +5,9 @@ description: A minimal SoC using the FazyRV core and external memory
 filesets:
   soc:
     files:
-      - rtl/gpio.sv
+      - rtl/wb_regs.sv
       - rtl/wb_qspi_mem.sv
+      - rtl/wb_spi.sv
       - rtl/exotiny.sv
     file_type: systemVerilogSource
     depend: [fazyrv]
@@ -27,9 +28,10 @@ filesets:
       - tb/exotiny_tb.sv
     file_type: systemVerilogSource
 
-  demo_icebreaker:
+  demo_icoboard:
     files:
-      - demo/icebreaker/demo_exotiny_icebreaker.sv
+      - demo/ice40/demo_exotiny_ice40.sv
+      - demo/ice40/icoboard.pcf: {file_type: PCF}
     file_type: systemVerilogSource
 
   demo_sim:
@@ -84,18 +86,18 @@ targets:
       - signature_file
     toplevel: exotiny_tb
 
-  demo_icebreaker:
-    filesets: [soc, demo_icebreaker]
+  demo_icoboard:
+    filesets: [soc, demo_icoboard]
     default_tool: icestorm
     tools:
       icestorm:
-        nextpnr_options: [--up5k, --freq, 12]
+        nextpnr_options: [--hx8k, --freq, 20]
         pnr: next
     parameters:
       - firmware
       - SIM
       - DEBUG
-    toplevel: demo_exotiny_icebreaker
+    toplevel: demo_exotiny_ice40
 
   demo_sim:
     filesets: [soc, demo_sim]
