@@ -53,13 +53,13 @@ logic [31:0]  wb_cpu_imem_rdat;
 logic         wb_cpu_imem_ack;
 
 logic         wb_cpu_dmem_cyc;
-logic         wb_cpu_dmem_stb;
+(* keep *) logic         wb_cpu_dmem_stb;
 logic         wb_cpu_dmem_we;
 logic         wb_cpu_dmem_ack;
 logic [3:0]   wb_cpu_dmem_be;
 logic [31:0]  wb_cpu_dmem_rdat;
 logic [31:0]  wb_cpu_dmem_adr;
-logic [31:0]  wb_cpu_dmem_wdat;
+(* keep *) logic [31:0]  wb_cpu_dmem_wdat;
 
 logic         wb_mem_stb;
 logic         wb_mem_we;
@@ -67,15 +67,15 @@ logic         wb_mem_ack;
 logic [3:0]   wb_mem_be;
 logic [31:0]  wb_mem_rdat;
 logic [31:0]  wb_mem_adr;
-logic [31:0]  wb_mem_wdat;
+(* keep *) logic [31:0]  wb_mem_wdat;
 
-logic         wb_regs_cyc;
+(* keep *) logic         wb_regs_cyc;
 logic         wb_regs_stb;
 logic         wb_regs_we;
 logic         wb_regs_ack;
 logic [3:0]   wb_regs_be;
 logic [31:0]  wb_regs_rdat;
-logic [31:0]  wb_regs_adr;
+(* keep *) logic [31:0]  wb_regs_adr;
 logic [31:0]  wb_regs_wdat;
 
 logic         wb_spi_cyc;
