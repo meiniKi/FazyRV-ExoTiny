@@ -56,12 +56,15 @@ module wb_spi (
 logic [31:0] dat_rx_r, dat_rx_n;
 logic [31:0] dat_tx_r, dat_tx_n;
 
-logic [5:0] cnt_hbit_r, cnt_hbit_n;
+logic [6:0] cnt_hbit_r, cnt_hbit_n;
 logic [6:0] cnt_presc_r, cnt_presc_n;
 
 logic sck_r;
 logic tick;
 logic done;
+
+logic [2:0] size;
+assign size = {1'b0, size_i} + 1'b1; 
 
 enum int unsigned { IDLE, ACT } state_r, state_n;
 
@@ -89,7 +92,7 @@ always_comb begin
         dat_tx_n    = wb_spi_dat_i;
         state_n = ACT;
         cnt_presc_n = (presc_i << 3);
-        cnt_hbit_n  = (size_i << 4);
+        cnt_hbit_n  = (size << 4);
       end
     end
     // ---
@@ -103,7 +106,7 @@ always_comb begin
 
         if (cnt_hbit_r[0]) begin
           dat_tx_n    = dat_tx_r << 1;
-          dat_rx_n    = {dat_rx_r[31:1], spi_sdi_i};
+          dat_rx_n    = {dat_rx_r[30:0], spi_sdi_i};
         end
       end
     end
@@ -115,6 +118,7 @@ always_ff @(posedge clk_i) begin
     state_r     <= IDLE;
     dat_tx_r    <= 'b0;
     sck_r       <= cpol_i;
+    dat_rx_r    <= 'b0;
   end else begin
     state_r     <= state_n;
     dat_rx_r    <= dat_rx_n;

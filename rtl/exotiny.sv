@@ -21,7 +21,7 @@ module exotiny #(
   parameter CHUNKSIZE = 8,
   parameter CONF      = "MIN",
   parameter RFTYPE    = "BRAM",
-  parameter GPICNT    = 6,
+  parameter GPICNT    = 7,
   parameter GPOCNT    = 6
 ) (
   input  logic              clk_i,

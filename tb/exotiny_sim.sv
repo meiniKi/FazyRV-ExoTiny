@@ -84,8 +84,8 @@ exotiny #(
 );
 
 // conditional loopback for testing
-assign spi_sdi =  gpo[1] ? 8'h55 : 
-                  gpo[0] ? 8'hAA : spi_sdo;
+assign spi_sdi =  gpo[1] ? 1'b1 : 
+                  gpo[0] ? 1'b0 : spi_sdo;
 
 assign gpi =  gpo[1] ? 6'h15 : 
               gpo[0] ? 6'h2A : 'h0;

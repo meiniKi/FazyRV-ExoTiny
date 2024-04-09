@@ -2,9 +2,6 @@
 
 FazyRV-ExoTiny implements a minimal System-on-Chip based on the FazyRV RISC-V core. It targets platforms that do not have on-chip memory available through external QSPI RAM and ROM memory. This repository is tailored to a particular use case. We recommend taking a look at the documentation given in [FazyRV](https://github.com/meiniKi/fazyrv).
 
-> [!IMPORTANT]  
-> WIP! Verification is to be done.
-
 ## Table of Content
 - [Introduction](#intro)
 - [Quick Start](#quick)
@@ -14,11 +11,13 @@ FazyRV-ExoTiny implements a minimal System-on-Chip based on the FazyRV RISC-V co
 
 ## Introduction <a name="intro"></a>
 
+![Block Diagram](./doc/block.png "Block Diagram")
+
 > [!IMPORTANT]  
 > FazyRV-ExoTiny is designed to showcase FazyRV in specific scenarios when on-chip memory is not available. We highly recommend re-verifying the design when adopting it. 
 
 > [!WARNING]  
-> The design is WiP. QSPI timing is to be tested with actual hardware. The current simulation is based on a hand-derived model from the data sheet documentation.
+> WIP! Full verification is yet to be done.
 
 ## Quick Start <a name="quick"></a>
 

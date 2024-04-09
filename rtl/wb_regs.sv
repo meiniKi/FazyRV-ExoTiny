@@ -35,7 +35,7 @@ module wb_regs (
   input  logic [31:0] wb_regs_dat_i,
   output logic [31:0] wb_regs_dat_o,
   // gpio
-  input  logic [5:0]  gpi_i,
+  input  logic [6:0]  gpi_i,
   output logic [5:0]  gpo_o,
   // spi
   input  logic        spi_rdy_i,
@@ -72,8 +72,8 @@ always_comb begin
   /* verilator lint_off CASEINCOMPLETE */
   case(wb_regs_adr_i)
     ADR_SPI_GPO:  wb_regs_dat_o = {26'b0, gpo_r};
-    ADR_SPI_GPI:  wb_regs_dat_o = {26'b0, gpi_i};
-    ADR_SPI_CTRL: wb_regs_dat_o = {8'b0, 6'b0, spi_size_r, 5'b0, spi_auto_cs_r, spi_cpol_r, 5'b0, spi_presc_r};
+    ADR_SPI_GPI:  wb_regs_dat_o = {25'b0, gpi_i};
+    ADR_SPI_CTRL: wb_regs_dat_o = {8'b0, 6'b0, spi_size_r, 5'b0, spi_auto_cs_r, spi_cpol_r, 1'b0, 4'b0, spi_presc_r};
     ADR_SPI_STAT: wb_regs_dat_o = {31'b0, spi_rdy_i};
     default:      wb_regs_dat_o = {28'b0, gpo_r};
   endcase

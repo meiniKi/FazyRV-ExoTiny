@@ -157,7 +157,7 @@ always_comb begin
 
   case (state_r)
     INIT: begin
-      sd_oen_o    = 4'b0001;
+      sd_oen_o    = {3'b000, rst_in};
       cs_rom_on   = 1'b1;
       cs_ram_on   = 1'b0 | ~rst_in;
       if (cnt_r == 'd7) begin
