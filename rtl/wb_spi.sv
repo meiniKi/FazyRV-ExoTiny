@@ -114,18 +114,16 @@ always_comb begin
 end
 
 always_ff @(posedge clk_i) begin
+  dat_rx_r    <= dat_rx_n;
+  dat_tx_r    <= dat_tx_n;
+  cnt_hbit_r  <= cnt_hbit_n;
+  cnt_presc_r <= cnt_presc_n;
+
   if (~rst_in) begin
     state_r     <= IDLE;
-    dat_tx_r    <= 'b0;
     sck_r       <= cpol_i;
-    dat_rx_r    <= 'b0;
   end else begin
     state_r     <= state_n;
-    dat_rx_r    <= dat_rx_n;
-    dat_tx_r    <= dat_tx_n;
-    cnt_hbit_r  <= cnt_hbit_n;
-    cnt_presc_r <= cnt_presc_n;
-
     // SCK
     if (state_r == IDLE)  sck_r <= cpol_i;
     else if (tick)        sck_r <= done ? cpol_i : ~sck_r;
