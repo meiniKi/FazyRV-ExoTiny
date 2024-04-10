@@ -131,7 +131,7 @@ RVTEST_CODE_BEGIN
   # (2) write 1 byte ones
   TEST_ST_OP(64, lw, sw, 0x00000000, 0, 0x20000000 );
   TEST_ST_OP(65, lw, sw, 0x00010401, 0, 0x20000008 );
-  TEST_ST_WT_RD(66, lw, sw, 0xC0FFEEC0, 0x0000C0EE, 0, 0x40000000, 0x20000010, 0x1);
+  TEST_ST_WT_RD(66, lw, sw, 0xC0FFEEC0, 0x0000C0FF, 0, 0x40000000, 0x20000010, 0x1);
 
   # auto CS, ~cpol, spi loopback, 3 byte
   # (1) clear rx (zeros)
@@ -141,7 +141,7 @@ RVTEST_CODE_BEGIN
   # (2) write 1 byte ones
   TEST_ST_OP(70, lw, sw, 0x00000000, 0, 0x20000000 );
   TEST_ST_OP(71, lw, sw, 0x00020401, 0, 0x20000008 );
-  TEST_ST_WT_RD(72, lw, sw, 0xC0FFEEC0, 0x00C0EEFF, 0, 0x40000000, 0x20000010, 0x1);
+  TEST_ST_WT_RD(72, lw, sw, 0xC0FFEEC0, 0x00C0FFEE, 0, 0x40000000, 0x20000010, 0x1);
 
   # auto CS, ~cpol, spi loopback, 4 byte
   # (1) clear rx (zeros)
@@ -151,7 +151,7 @@ RVTEST_CODE_BEGIN
   # (2) write 1 byte ones
   TEST_ST_OP(76, lw, sw, 0x00000000, 0, 0x20000000 );
   TEST_ST_OP(77, lw, sw, 0x00030401, 0, 0x20000008 );
-  TEST_ST_WT_RD(78, lw, sw, 0xC0FFEEC0, 0xC0EEFFC0, 0, 0x40000000, 0x20000010, 0x1);
+  TEST_ST_WT_RD(78, lw, sw, 0xC0FFEEC0, 0xC0FFEEC0, 0, 0x40000000, 0x20000010, 0x1);
 
   ###
 
@@ -163,7 +163,7 @@ RVTEST_CODE_BEGIN
   # (2) write 1 byte ones
   TEST_ST_OP(82, lw, sw, 0x00000000, 0, 0x20000000 );
   TEST_ST_OP(83, lw, sw, 0x00000401, 0, 0x20000008 );
-  TEST_ST_WT_RD(84, lw, sw, 0xA55AA55A, 0x0000005A, 0, 0x40000000, 0x20000010, 0x1);
+  TEST_ST_WT_RD(84, lw, sw, 0xA55AA55A, 0x000000A5, 0, 0x40000000, 0x20000010, 0x1);
 
   # auto CS, ~cpol, spi loopback, 2 byte
   # (1) clear rx (zeros)
@@ -173,7 +173,7 @@ RVTEST_CODE_BEGIN
   # (2) write 1 byte ones
   TEST_ST_OP(88, lw, sw, 0x00000000, 0, 0x20000000 );
   TEST_ST_OP(89, lw, sw, 0x00010401, 0, 0x20000008 );
-  TEST_ST_WT_RD(90, lw, sw, 0xA55AA55A, 0x00005AA5, 0, 0x40000000, 0x20000010, 0x1);
+  TEST_ST_WT_RD(90, lw, sw, 0xA55AA55A, 0x0000A55A, 0, 0x40000000, 0x20000010, 0x1);
 
   # auto CS, ~cpol, spi loopback, 3 byte
   # (1) clear rx (zeros)
@@ -183,7 +183,7 @@ RVTEST_CODE_BEGIN
   # (2) write 1 byte ones
   TEST_ST_OP(94, lw, sw, 0x00000000, 0, 0x20000000 );
   TEST_ST_OP(95, lw, sw, 0x00020401, 0, 0x20000008 );
-  TEST_ST_WT_RD(96, lw, sw, 0xA55AA55A, 0x005AA55A, 0, 0x40000000, 0x20000010, 0x1);
+  TEST_ST_WT_RD(96, lw, sw, 0xA55AA55A, 0x00A55AA5, 0, 0x40000000, 0x20000010, 0x1);
 
   # auto CS, ~cpol, spi loopback, 4 byte
   # (1) clear rx (zeros)
@@ -193,7 +193,7 @@ RVTEST_CODE_BEGIN
   # (2) write 1 byte ones
   TEST_ST_OP(100, lw, sw, 0x00000000, 0, 0x20000000 );
   TEST_ST_OP(101, lw, sw, 0x00030401, 0, 0x20000008 );
-  TEST_ST_WT_RD(102, lw, sw, 0xA55AA55A, 0x5AA55AA5, 0, 0x40000000, 0x20000010, 0x1);
+  TEST_ST_WT_RD(102, lw, sw, 0xA55AA55A, 0xA55AA55A, 0, 0x40000000, 0x20000010, 0x1);
 
 
   TEST_PASSFAIL
