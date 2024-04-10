@@ -89,7 +89,8 @@ always_comb begin
 
     IDLE: begin
       if (wb_spi_cyc_i & wb_spi_stb_i & wb_spi_we_i) begin
-        dat_tx_n    = wb_spi_dat_i;
+        // swapped byte order to make 8-bit transfers much more efficient in the bit-serial architecture
+        dat_tx_n    = {wb_spi_dat_i[7:0], wb_spi_dat_i[15:8], wb_spi_dat_i[23:16], wb_spi_dat_i[31:24]};
         state_n = ACT;
         cnt_presc_n = (presc_i << 3);
         cnt_hbit_n  = (size << 4);

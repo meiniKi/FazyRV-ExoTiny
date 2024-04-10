@@ -64,6 +64,24 @@ TEST_FUNC_NAME:				\
 	sw	a3,0(a0);		\
 	sw	a2,0(a0);		\
 	sw	a4,0(a0);		\
+	1: \
+	li	t1, 0x01; \
+	sw	t1,0(a0); \
+	li	t1, 10; \
+	2: \
+	add t1,t1,-1; \
+	beq t1,zero,3f; \
+	j 2b; \
+	3: \
+	li	t1, 0x00; \
+	sw	t1,0(a0); \
+	li	t1, 1000; \
+	4: \
+	add t1,t1,-1; \
+	beq t1,zero,5f; \
+	j 4b; \
+	5: \
+	j 1b; \
 	ebreak;
 
 #define RVTEST_CODE_END

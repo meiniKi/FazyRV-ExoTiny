@@ -160,5 +160,24 @@ _start:
 	sw a4,0(a0)
 	sw a5,0(a0)
 
+    1: \
+	li	t1, 0x01; \
+	sw	t1,0(a0); \
+	li	t1, 2000; \
+	2: \
+	add t1,t1,-1; \
+	beq t1,zero,3f; \
+	j 2b; \
+	3: \
+	li	t1, 0x00; \
+	sw	t1,0(a0); \
+	li	t1, 2000; \
+	4: \
+	add t1,t1,-1; \
+	beq t1,zero,5f; \
+	j 4b; \
+	5: \
+	j 1b; \
+
 hlt:
     j hlt
