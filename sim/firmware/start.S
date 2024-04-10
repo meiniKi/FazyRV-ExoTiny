@@ -81,6 +81,11 @@ _start:
     n ## _ret:
 #endif
 
+    TEST(gpo)
+    TEST(gpi)
+    TEST(spic)
+    TEST(spid)
+
     TEST(lui)
     TEST(auipc)
     TEST(j)
@@ -138,8 +143,12 @@ _start:
     #TEST(remu)
     #TEST(simple)
 
+    /* basic peripheral tests */
+
+
+
 	/* print "DONE\n" */
-	lui a0,0x10000000>>12
+	lui a0,0x20000000>>12
 	addi a1,zero,'D'
 	addi a2,zero,'O'
 	addi a3,zero,'N'
@@ -150,6 +159,25 @@ _start:
 	sw a3,0(a0)
 	sw a4,0(a0)
 	sw a5,0(a0)
+
+    1: \
+	li	t1, 0x01; \
+	sw	t1,0(a0); \
+	li	t1, 2000; \
+	2: \
+	add t1,t1,-1; \
+	beq t1,zero,3f; \
+	j 2b; \
+	3: \
+	li	t1, 0x00; \
+	sw	t1,0(a0); \
+	li	t1, 2000; \
+	4: \
+	add t1,t1,-1; \
+	beq t1,zero,5f; \
+	j 4b; \
+	5: \
+	j 1b; \
 
 hlt:
     j hlt

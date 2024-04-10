@@ -47,9 +47,9 @@
       j complience_halt_loop; \
       j complience_halt_break;		\
   complience_halt_break:; \
-      lui	a0,0x10000000>>12;	\
+      lui	a0,0x20000000>>12;	\
       sw	x0,0(a0); \
-      lui	a0,0x08F00000>>12;	\
+      lui	a0,0x10F00000>>12;	\
       sw	a3,0(a0);
 
 //  li x1, 1;                                                                   \
@@ -58,7 +58,7 @@
 //    j write_tohost;
 
 #define RVMODEL_BOOT \
-    lui	a0,0x10000000>>12;	\
+    lui	a0,0x20000000>>12;	\
     li  a1, 1; \
     sw	a1,0(a0);
 

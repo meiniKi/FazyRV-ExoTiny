@@ -70,7 +70,7 @@ module spiflash (
 	localparam [3:0] mode_qspi_ddr_rd = 6;
 	localparam [3:0] mode_qspi_ddr_wr = 7;
 
-	reg [3:0] mode = 6;
+	reg [3:0] mode = 4;
 	reg [3:0] next_mode = 0;
 
 	reg io0_oe = 0;

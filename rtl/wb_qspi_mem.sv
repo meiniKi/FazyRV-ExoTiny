@@ -60,14 +60,15 @@ module wb_qspi_mem (
   
 localparam USE_CONTINUOUS_READ_MODE = 1;
 
-localparam INSTR_QRD = 32'b???1_???1_???1_???0_???1_???0_???1_???1; // (8'hEB == 8'b1110_1011)
-localparam INSTR_QWD = 32'b???0_???0_???1_???1_???1_???0_???0_???0; // (8'h38 == 8'b0011_1000)
+localparam INSTR_RAM_QRD = 32'b0000_1011_????_????_????_????_????_????; // (QSPI 8'h0B == 8'b0000_1011)
+localparam INSTR_RAM_QWD = 32'b0011_1000_????_????_????_????_????_????; // (QSPI 8'h38 == 8'b0011_1000)
 
-localparam RAM_INSTR_TO_QSPI = 32'b???0_???0_???1_???1_???0_???1_???0_???1; // (8'h35 == 8'b0011_0101;
-//localparam RAM_INSTR_TO_QSPI = 32'b0000_0000_0001_0001_0000_0001_0000_0001; // (8'h35 == 8'b0011_0101;
+localparam INSTR_ROM_QRD = 32'b???1_???1_???1_???0_???1_???0_???1_???1; // (SPI 8'hEB == 8'b1110_1011)
+
+localparam RAM_INSTR_TO_QSPI = 32'b???0_???0_???1_???1_???0_???1_???0_???1; // (SPI 8'h35 == 8'b0011_0101);
 
 // If order is changed make sure to update the optimization in the fsm
-localparam RAM_RD_HIGHZ_CYCLES_VAL = 'd4;
+localparam RAM_RD_HIGHZ_CYCLES_VAL = 'd3;
 localparam ROM_RD_HIGHZ_CYCLES_VAL = 'd3;
 
 // Write to flash on rising clock edge
@@ -156,7 +157,7 @@ always_comb begin
 
   case (state_r)
     INIT: begin
-      sd_oen_o    = 4'b0001;
+      sd_oen_o    = {3'b000, rst_in};
       cs_rom_on   = 1'b1;
       cs_ram_on   = 1'b0 | ~rst_in;
       if (cnt_r == 'd7) begin
@@ -173,10 +174,10 @@ always_comb begin
 
         if (wb_mem_we_i) begin
           // Case: write to RAM
-          dat_n = INSTR_QWD;
+          dat_n = INSTR_RAM_QWD;
         end else begin
           // Case B: read from RAM or ROM in non-continuous mode
-          dat_n = INSTR_QRD;
+          dat_n = sel_rom_ram_i ? INSTR_RAM_QRD : INSTR_ROM_QRD;
 
           // Case A: read from ROM when set in continuous mode
           if (~sel_rom_ram_i & USE_CONTINUOUS_READ_MODE & crm_r) begin
@@ -188,8 +189,8 @@ always_comb begin
     end
     //---
     INSTR: begin
-      sd_oen_o  = 4'b0001;
-      if (cnt_r == 'd7) begin
+      sd_oen_o  = {{3{sel_rom_ram_i}}, 1'b1};
+      if ((sel_rom_ram_i & (cnt_r == 'd1))| (cnt_r == 'd7)) begin
         state_n = ADDR;
         dat_n   = adr_init;
         crm_n   = crm_r | (~sel_rom_ram_i & USE_CONTINUOUS_READ_MODE);

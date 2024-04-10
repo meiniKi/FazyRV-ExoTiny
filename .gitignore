@@ -8,3 +8,4 @@ fusesoc.conf
 
 __pycache__/
 *.py[cod]
+.vscode

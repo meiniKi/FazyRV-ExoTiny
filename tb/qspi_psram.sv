@@ -4,7 +4,7 @@
 // File  :  qspi_psram.sv
 // Usage :  Very basic QSPI PSRAM Model. The model requires a 
 //			_SPI Quad Mode Enable Operation_ ('h35) after power up and only
-//			supports QSPI read ('hEB) and write ('h38) operations
+//			supports QSPI read ('h0B) and write ('h38) operations
 // Param
 //  - DEPTH     Memory size in bytes
 //
@@ -32,15 +32,35 @@ module qspi_psram #( parameter DEPTH=128 )(
 );
 
 localparam CMD_QSPI_UNLOCK = 'h35;
-localparam CMD_QSPI_READ   = 'hEB;
+localparam CMD_QSPI_READ   = 'h0B;
 localparam CMD_QSPI_WRITE  = 'h38;
 
-localparam DUMMY_CYCLES = 6;
+localparam DUMMY_CYCLES = 4;
 
 logic io0_o;
 logic io1_o;
 logic io2_o;
 logic io3_o;
+
+logic io0_o_pre;
+logic io1_o_pre;
+logic io2_o_pre;
+logic io3_o_pre;
+
+always @(negedge sck_i) begin
+  if (state_r == READ) begin
+    #5 
+    io0_o <= io0_o_pre;
+    io1_o <= io1_o_pre;
+    io2_o <= io2_o_pre;
+    io3_o <= io3_o_pre;
+  end else begin
+    io0_o <= 1'bz;
+    io1_o <= 1'bz;
+    io2_o <= 1'bz;
+    io3_o <= 1'bz;
+  end
+end
 
 logic io0_oen;
 logic io1_oen;
@@ -107,20 +127,25 @@ always_comb begin
     case (state_r)
       CMD: begin
         cnt_n = cnt_r + 'd1;
-        cmd_n = {cmd_r[6:0], io0_io};
+
+        if (qspi_unlocked_r)  cmd_n = {cmd_r[3:0], io3_io, io2_io, io1_io, io0_io};
+        else                  cmd_n = {cmd_r[6:0], io0_io};
+
+        if (qspi_unlocked_r & (cnt_r == 'd1)) begin
+          cnt_n   = 'd0;
+          state_n = WAIT;
+          if (({cmd_r[3:0], io3_io, io2_io, io1_io, io0_io} == CMD_QSPI_READ) |
+              ({cmd_r[3:0], io3_io, io2_io, io1_io, io0_io} == CMD_QSPI_WRITE) ) begin
+            state_n         = ADR;
+          end
+        end
         if (cnt_r == 'd7) begin
+          cnt_n   = 'd0;
+          state_n = WAIT;
           if ({cmd_r[6:0], io0_io} == CMD_QSPI_UNLOCK) begin
             qspi_unlocked_n = 1;
             state_n         = WAIT;
           end
-          if ((qspi_unlocked_r && ({cmd_r[6:0], io0_io} == CMD_QSPI_READ)) |
-              (qspi_unlocked_r && ({cmd_r[6:0], io0_io} == CMD_QSPI_WRITE)) ) begin
-            state_n         = ADR;
-          end else begin
-            // not matched any command
-            state_n = WAIT;
-          end
-          cnt_n = 'd0;
         end
       end
       // ---
@@ -155,8 +180,8 @@ always_comb begin
       READ: begin
         //mem_byte_n = mem_r[adr_r];
         cnt_n = cnt_r + 'd1;
-        if (cnt_r == 'd0) {io3_o, io2_o, io1_o, io0_o} = current_read[7:4];
-        else              {io3_o, io2_o, io1_o, io0_o} = current_read[3:0];
+        if (cnt_r == 'd0) {io3_o_pre, io2_o_pre, io1_o_pre, io0_o_pre} = current_read[7:4];
+        else              {io3_o_pre, io2_o_pre, io1_o_pre, io0_o_pre} = current_read[3:0];
         if (cnt_r == 'd1) begin
           cnt_n = 'd0;
           adr_n = adr_r + 'd1;
