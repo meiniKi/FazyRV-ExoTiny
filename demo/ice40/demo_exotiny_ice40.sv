@@ -30,6 +30,11 @@ localparam CHUNKSIZE  = 2;
 localparam RFTYPE     = "BRAM";
 localparam CONF       = "MIN";
 
+// Reset sync
+logic       rst_sync;
+always_ff @(posedge clk_i) rst_sync <= rst_i;
+
+
 logic rst_n;
 logic locked;
 logic clk_sys;
@@ -58,9 +63,9 @@ SB_PLL40_PAD #(
 ) i_SB_PLL40_PAD (   
   .PACKAGEPIN    ( clk_i    ),
   .PLLOUTGLOBAL  ( clk_inter  ),
-  .RESETB        ( ~rst_i   ),
-  .BYPASS        ( 1'b0     ),
-  .LOCK          ( locked   )
+  .RESETB        ( ~rst_sync  ),
+  .BYPASS        ( 1'b0       ),
+  .LOCK          ( locked     )
 );
 
 
@@ -68,14 +73,14 @@ SB_PLL40_PAD #(
 logic [7:0] locked_dly_r;
 
 always @(posedge clk_sys) begin
-  if (~locked | rst_i) begin
+  if (~locked | rst_sync) begin
     locked_dly_r <= 'b0;
   end else begin
     if (~&locked_dly_r) locked_dly_r <= locked_dly_r + 'b1;
   end
 end
 
-assign rst_n      = locked & ~rst_i & (&locked_dly_r);
+assign rst_n      = locked & ~rst_sync & (&locked_dly_r);
 assign led_rst_n  = rst_n; 
 // ---- 
 

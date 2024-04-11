@@ -25,7 +25,7 @@
 TEST_FUNC_NAME:				\
 	lui	a0,%hi(.test_name);	\
 	addi	a0,a0,%lo(.test_name);	\
-	lui	a2,0x20000000>>12;	\
+	li	a2,0x2000000C;	\
 .prname_next:				\
 	lb	a1,0(a0);		\
 	beq	a1,zero,.prname_done;	\
@@ -43,7 +43,7 @@ TEST_FUNC_NAME:				\
 #endif
 
 #define RVTEST_PASS			\
-	lui	a0,0x20000000>>12;	\
+	li	a0,0x2000000C;	\
 	addi	a1,zero,'O';		\
 	addi	a2,zero,'K';		\
 	addi	a3,zero,'\n';		\
@@ -53,7 +53,7 @@ TEST_FUNC_NAME:				\
 	jal	zero,TEST_FUNC_RET;
 
 #define RVTEST_FAIL			\
-	lui	a0,0x20000000>>12;	\
+	li	a0,0x2000000C;	\
 	addi	a1,zero,'E';		\
 	addi	a2,zero,'R';		\
 	addi	a3,zero,'O';		\
@@ -64,8 +64,9 @@ TEST_FUNC_NAME:				\
 	sw	a3,0(a0);		\
 	sw	a2,0(a0);		\
 	sw	a4,0(a0);		\
+	li a0,0x20000000;	\
 	1: \
-	li	t1, 0x01; \
+	li	t1, 0x29; \
 	sw	t1,0(a0); \
 	li	t1, 10; \
 	2: \
@@ -73,7 +74,7 @@ TEST_FUNC_NAME:				\
 	beq t1,zero,3f; \
 	j 2b; \
 	3: \
-	li	t1, 0x00; \
+	li	t1, 0x28; \
 	sw	t1,0(a0); \
 	li	t1, 1000; \
 	4: \
