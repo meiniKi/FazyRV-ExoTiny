@@ -47,21 +47,6 @@ logic io1_o_pre;
 logic io2_o_pre;
 logic io3_o_pre;
 
-always @(negedge sck_i) begin
-  if (state_r == READ) begin
-    #5 
-    io0_o <= io0_o_pre;
-    io1_o <= io1_o_pre;
-    io2_o <= io2_o_pre;
-    io3_o <= io3_o_pre;
-  end else begin
-    io0_o <= 1'bz;
-    io1_o <= 1'bz;
-    io2_o <= 1'bz;
-    io3_o <= 1'bz;
-  end
-end
-
 logic io0_oen;
 logic io1_oen;
 logic io2_oen;
@@ -87,6 +72,21 @@ logic [23:0]  adr_r, adr_n;
 logic [7:0]   dat_r, dat_n;
 
 int cnt_r, cnt_n;
+
+always @(negedge sck_i) begin
+  if (state_r == READ) begin
+    #5 
+    io0_o <= io0_o_pre;
+    io1_o <= io1_o_pre;
+    io2_o <= io2_o_pre;
+    io3_o <= io3_o_pre;
+  end else begin
+    io0_o <= 1'bz;
+    io1_o <= 1'bz;
+    io2_o <= 1'bz;
+    io3_o <= 1'bz;
+  end
+end
 
 assign io0_oen = ~cs_in & (state_r == READ);
 assign io1_oen = ~cs_in & (state_r == READ);
