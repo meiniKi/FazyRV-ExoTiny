@@ -24,23 +24,30 @@ module exotiny #(
   parameter GPICNT    = 7,
   parameter GPOCNT    = 6
 ) (
-  input  logic              clk_i,
-  input  logic              rst_in,
+  input  logic                  clk_i,
+  input  logic                  rst_in,
 
-  input  logic [GPICNT-1:0] gpi_i,
-  output logic [GPOCNT-1:0] gpo_o,
+  input  logic [GPICNT-1:0]     gpi_i,
+  output logic [GPOCNT-1:0]     gpo_o,
 
-  output logic              mem_cs_ram_on,
-  output logic              mem_cs_rom_on,
-  output logic              mem_sck_o,
-  input  logic [3:0]        mem_sd_i,
-  output logic [3:0]        mem_sd_o,
+  output logic                  mem_cs_ram_on,
+  output logic                  mem_cs_rom_on,
+  output logic                  mem_sck_o,
+  input  logic [3:0]            mem_sd_i,
+  output logic [3:0]            mem_sd_o,
   // Instatiate techn. dep. tri-state buffers in wrapper
-  output logic [3:0]        mem_sd_oen_o,
+  output logic [3:0]            mem_sd_oen_o,
   // SPI (cs by gpo)
-  output logic              spi_sck_o,
-  output logic              spi_sdo_o,
-  input  logic              spi_sdi_i
+  output logic                  spi_sck_o,
+  output logic                  spi_sdo_o,
+  input  logic                  spi_sdi_i
+  // ccx
+  output logic [CHUNKSIZE-1:0]  ccx_rs_a_o,
+  output logic [CHUNKSIZE-1:0]  ccx_rs_b_o,
+  input  logic [CHUNKSIZE-1:0]  ccx_res_i,
+  output logic [1:0]            ccx_sel_o,
+  output logic                  ccx_req_o,
+  input  logic                  ccx_resp_i
 );
 
 logic         tirq_i = 1'b0;
@@ -99,6 +106,18 @@ logic         spi_auto_cs;
 
 logic [GPICNT-1:0]  gpo;
 logic               spi_cs;
+
+logic [CHUNKSIZE-1:0] ccx_rs_a;
+logic [CHUNKSIZE-1:0] ccx_rs_b;
+logic [CHUNKSIZE-1:0] ccx_res;
+logic                 ccx_req;
+logic                 ccx_resp;
+
+assign ccx_rs_a_o = ccx_rs_a;
+assign ccx_rs_b_o = ccx_rs_b;
+assign ccx_req_o  = ccx_req;
+assign ccx_res    = ccx_res_i;
+assign ccx_resp   = ccx_resp_i;
 
 assign gpo_o = {gpo[GPICNT-1]|spi_cs, gpo[GPICNT-2:0]};
 
@@ -232,7 +251,14 @@ fazyrv_top #(
   .wb_dmem_be_o   ( wb_cpu_dmem_be    ),
   .wb_dmem_dat_i  ( wb_cpu_dmem_rdat  ),
   .wb_dmem_adr_o  ( wb_cpu_dmem_adr   ),
-  .wb_dmem_dat_o  ( wb_cpu_dmem_wdat  )
+  .wb_dmem_dat_o  ( wb_cpu_dmem_wdat  ),
+
+  .ccx_rs_a_o     ( ccx_rs_a          ),
+  .ccx_rs_b_o     ( ccx_rs_b          ),
+  .ccx_res_i      ( ccx_res           ),
+  .ccx_sel_o      ( ccx_sel_o         ),
+  .ccx_req_o      ( ccx_req           ),
+  .ccx_resp_i     ( ccx_resp          )
 );
 
 
