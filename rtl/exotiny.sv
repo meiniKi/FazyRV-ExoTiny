@@ -21,8 +21,8 @@ module exotiny #(
   parameter CHUNKSIZE = 8,
   parameter CONF      = "MIN",
   parameter RFTYPE    = "BRAM",
-  parameter GPICNT    = 7,
-  parameter GPOCNT    = 6
+  parameter GPICNT    = 6,
+  parameter GPOCNT    = 1
 ) (
   input  logic                  clk_i,
   input  logic                  rst_in,
@@ -40,7 +40,7 @@ module exotiny #(
   // SPI (cs by gpo)
   output logic                  spi_sck_o,
   output logic                  spi_sdo_o,
-  input  logic                  spi_sdi_i
+  input  logic                  spi_sdi_i,
   // ccx
   output logic [CHUNKSIZE-1:0]  ccx_rs_a_o,
   output logic [CHUNKSIZE-1:0]  ccx_rs_b_o,
