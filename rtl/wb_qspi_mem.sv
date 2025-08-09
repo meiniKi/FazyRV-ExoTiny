@@ -94,6 +94,8 @@ logic       crm_r, crm_n;
 logic [3:0] data_i_padded [0:7];
 logic [2:0] data_idx;
 
+logic [1:0] offset;
+
 assign data_i_padded[0] = wb_mem_dat_i[ 7: 4];
 assign data_i_padded[1] = wb_mem_dat_i[ 3: 0];
 assign data_i_padded[2] = wb_mem_dat_i[15:12];
@@ -109,7 +111,6 @@ assign data_idx = {offset, 1'b0} + cnt_r;
 
 assign sd_o = (state_r == DATA_W) ? data_i_padded[data_idx] : dat_r[31 -: 4];
 
-logic [1:0] offset;
 //assign offset = (wb_mem_be_i[0] | ~wb_mem_we_i) ? 'd0 :
 //                wb_mem_be_i[1]                  ? 'd1 :
 //                wb_mem_be_i[2]                  ? 'd2 : 'd3 ;

@@ -12,10 +12,12 @@ GCC_WARNS += -Wredundant-decls -Wstrict-prototypes -Wmissing-prototypes -pedanti
 TOOLCHAIN_PREFIX = riscv32-unknown-elf-
 
 SRC_CORE 	= $(wildcard $(CORE)/*.v $(CORE)/*.sv)
-SRC_DESIGN 	= $(wildcard ../rtl/*.v ../rtl/*.sv)
+SRC_DESIGN 	= $(wildcard ../rtl/*.v ../rtl/*.sv ../ ../WdgRV/rtl/reg/*.v ../WdgRV/submodules/rggen-verilog-rtl/*.v)
+SRC_DESIGN  += ../WdgRV/rtl/wdg_top.v ../WdgRV/rtl/cntr.v ../WdgRV/rtl/fsm.v ../WdgRV/rtl/reg/wdgrv_regs.v ../WdgRV/rtl/clkdiv.v ../WdgRV/rtl/reset_ctrl.v
 SRC_SIM 	= $(wildcard ../tb/*.v ../tb/*.sv)
 
-CHUNKSIZE	?= 2
+
+CHUNKSIZE	?= 4
 RFTYPE 		?= LOGIC
 CONF 		?= MIN
 MEMDLY1		?= 0
@@ -28,7 +30,8 @@ test_vcd: testbench.vvp firmware/rom.hex
 	$(VVP) -N $< +vcd +noerror +firmware=firmware/rom.hex
 
 testbench.vvp: $(SRC_CORE) $(SRC_DESIGN) $(SRC_SIM) 
-	$(IVERILOG) -g2005-sv -DSIM -DDEBUG -Pexotiny_tb.CHUNKSIZE=$(CHUNKSIZE) -Pexotiny_tb.RFTYPE=\"$(RFTYPE)\" -Pexotiny_tb.CONF=\"$(CONF)\" -o $@ $^
+	$(IVERILOG) -g2005-sv -DSIM -DDEBUG -Pexotiny_tb.CHUNKSIZE=$(CHUNKSIZE) -Pexotiny_tb.RFTYPE=\"$(RFTYPE)\" \
+		-Pexotiny_tb.CONF=\"$(CONF)\" -I ../WdgRV/submodules/rggen-verilog-rtl/ -o $@ $^
 	chmod -x $@
 
 firmware/rom.hex: firmware/firmware.elf firmware/makehex.py

@@ -8,7 +8,7 @@
 
 module exotiny_tb #(
   parameter CHUNKSIZE  = 4,
-  parameter RFTYPE     = "BRAM",
+  parameter RFTYPE     = "LOGIC",
   parameter CONF       = "MIN"
 );
 

@@ -35,8 +35,8 @@ module wb_regs (
   input  logic [31:0] wb_regs_dat_i,
   output logic [31:0] wb_regs_dat_o,
   // gpio
-  input  logic [6:0]  gpi_i,
-  output logic [5:0]  gpo_o,
+  input  logic [5:0]  gpi_i,
+  output logic [2:0]  gpo_o,
   // spi
   input  logic        spi_rdy_i,
   output logic [3:0]  spi_presc_o,
@@ -53,7 +53,7 @@ localparam ADR_SPI_GPI  = 3'b001;
 localparam ADR_SPI_CTRL = 3'b010;
 localparam ADR_SPI_STAT = 3'b100;
 
-logic [5:0] gpo_r, gpo_n;
+logic [2:0] gpo_r, gpo_n;
 logic [3:0] spi_presc_r;
 logic       spi_cpol_r;
 logic       spi_auto_cs_r;
@@ -71,8 +71,8 @@ assign wb_regs_ack_o = wb_regs_cyc_i & wb_regs_stb_i;
 always_comb begin
   /* verilator lint_off CASEINCOMPLETE */
   case(wb_regs_adr_i)
-    ADR_SPI_GPO:  wb_regs_dat_o = {26'b0, gpo_r};
-    ADR_SPI_GPI:  wb_regs_dat_o = {25'b0, gpi_i};
+    ADR_SPI_GPO:  wb_regs_dat_o = {28'b0, gpo_r};
+    ADR_SPI_GPI:  wb_regs_dat_o = {26'b0, gpi_i};
     ADR_SPI_CTRL: wb_regs_dat_o = {8'b0, 6'b0, spi_size_r, 5'b0, spi_auto_cs_r, spi_cpol_r, 1'b0, 4'b0, spi_presc_r};
     ADR_SPI_STAT: wb_regs_dat_o = {31'b0, spi_rdy_i};
     default:      wb_regs_dat_o = {28'b0, gpo_r};
@@ -92,7 +92,7 @@ always_ff @(posedge clk_i) begin
       /* verilator lint_off CASEINCOMPLETE */
       case(wb_regs_adr_i)
         ADR_SPI_GPO: begin
-          if (wb_regs_be_i[0])  gpo_r <= wb_regs_dat_i[5:0];
+          if (wb_regs_be_i[0])  gpo_r <= wb_regs_dat_i[2:0];
         end
         ADR_SPI_CTRL: begin
           if (wb_regs_be_i[0]) spi_presc_r                  <= wb_regs_dat_i[3:0];

@@ -9,8 +9,7 @@
 module exotiny_sim #( 
   parameter CHUNKSIZE = 8,
   parameter CONF      = "MIN",
-  parameter RFTYPE    = "BRAM",
-  parameter GPOCNT    = 6
+  parameter RFTYPE    = "BRAM"
 ) (
   input  logic              clk_i,
   input  logic              rst_in
@@ -32,7 +31,7 @@ logic       spi_sdi;
 
 // GPIO
 logic [5:0] gpi;
-logic [5:0] gpo;
+logic gpo;
 
 
 wire [3:0] sdio;
@@ -63,8 +62,7 @@ qspi_psram #( .DEPTH(RAMSIZE) ) i_qspi_psram (
 exotiny #( 
   .CHUNKSIZE  ( CHUNKSIZE ),
   .CONF       ( CONF      ),
-  .RFTYPE     ( RFTYPE    ),
-  .GPOCNT     ( GPOCNT    )
+  .RFTYPE     ( RFTYPE    )
 ) i_exotiny (
   .clk_i          ( clk_i   ),
   .rst_in         ( rst_in  ),
@@ -84,10 +82,9 @@ exotiny #(
 );
 
 // conditional loopback for testing
-assign spi_sdi =  gpo[1] ? 1'b1 : 
-                  gpo[0] ? 1'b0 : spi_sdo;
+assign spi_sdi =  gpo ? 1'b0 : spi_sdo;
 
-assign gpi =  gpo[1] ? 6'h15 : 
-              gpo[0] ? 6'h2A : 'h0;
+assign gpi =  gpo ? 6'b10_1010 : 6'b01_0101;
 
 endmodule
+
