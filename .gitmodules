@@ -1,3 +1,6 @@
 [submodule "FazyRV"]
 	path = FazyRV
 	url = git@github.com:meiniKi/FazyRV.git
+[submodule "WdgRV"]
+	path = WdgRV
+	url = git@github.com:matztron/WdgRV.git

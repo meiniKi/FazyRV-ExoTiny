@@ -5,6 +5,7 @@ riscof_work
 *.vcd
 *.fst
 fusesoc.conf
+.DS_STORE
 
 __pycache__/
 *.py[cod]

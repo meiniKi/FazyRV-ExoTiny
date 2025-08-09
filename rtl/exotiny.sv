@@ -22,7 +22,7 @@ module exotiny #(
   parameter CONF      = "MIN",
   parameter RFTYPE    = "BRAM",
   parameter GPICNT    = 6,
-  parameter GPOCNT    = 1
+  parameter GPOCNT    = 2
 ) (
   input  logic                  clk_i,
   input  logic                  rst_in,
@@ -50,7 +50,7 @@ module exotiny #(
   input  logic                  ccx_resp_i
 );
 
-logic         tirq_i = 1'b0;
+logic         tirq_i;
 logic         trap_o;
 
 logic         wb_cpu_imem_stb;
@@ -75,6 +75,15 @@ logic [3:0]   wb_mem_be;
 logic [31:0]  wb_mem_rdat;
 logic [31:0]  wb_mem_adr;
 (* keep *) logic [31:0]  wb_mem_wdat;
+
+(* keep *) logic         wb_wdg_cyc; // TODO needed?
+logic         wb_wdg_stb;
+logic         wb_wdg_we;
+logic         wb_wdg_ack;
+logic [3:0]   wb_wdg_be;
+logic [31:0]  wb_wdg_rdat;
+(* keep *) logic [31:0]  wb_wdg_adr;
+logic [31:0]  wb_wdg_wdat;
 
 (* keep *) logic         wb_regs_cyc;
 logic         wb_regs_stb;
@@ -113,31 +122,45 @@ logic [CHUNKSIZE-1:0] ccx_res;
 logic                 ccx_req;
 logic                 ccx_resp;
 
+logic wdg_to; // watchdog timeout
+logic wdg_res_n;
+logic core_res_n;
+
 assign ccx_rs_a_o = ccx_rs_a;
 assign ccx_rs_b_o = ccx_rs_b;
 assign ccx_req_o  = ccx_req;
 assign ccx_res    = ccx_res_i;
 assign ccx_resp   = ccx_resp_i;
 
-assign gpo_o = {gpo[GPICNT-1]|spi_cs, gpo[GPICNT-2:0]};
+assign gpo_o = gpo[GPICNT-1] | spi_cs;
 
+// WDG:  0x{0b1000}xxxxxxx
 // SPI:  0x{0b0100}xxxxxxx
 // REGS: 0x{0b0010}xxxxxxx
 // RAM:  0x{0b0001}xxxxxxx +-> ram size
 // ROM:  0x{0b0000}xxxxxxx
 
-assign sel_mem  = ~|wb_mem_adr[30:29];
+assign sel_wdg  = wb_mem_adr[31];
+assign sel_mem  = ~|wb_mem_adr[31:29];
 assign sel_spi  = wb_mem_adr[30];
 assign sel_regs = wb_mem_adr[29];
 
 assign sel_rom_ram  = wb_mem_adr[28];
 
 assign wb_cpu_imem_rdat = wb_mem_rdat;
-assign wb_cpu_dmem_rdat = sel_regs  ? wb_regs_rdat  :
+assign wb_cpu_dmem_rdat = sel_wdg   ? wb_wdg_rdat   :
+                          sel_regs  ? wb_regs_rdat  :
                           sel_spi   ? wb_spi_rdat   : wb_mem_rdat;
 
 assign wb_cpu_imem_ack = wb_mem_ack & wb_cpu_imem_stb;
-assign wb_cpu_dmem_ack = (wb_regs_ack | wb_spi_ack | wb_mem_ack) & wb_cpu_dmem_stb;
+assign wb_cpu_dmem_ack = (wb_wdg_ack | wb_regs_ack | wb_spi_ack | wb_mem_ack) & wb_cpu_dmem_stb;
+
+assign wb_wdg_adr  = wb_cpu_dmem_adr;
+assign wb_wdg_cyc  = sel_wdg & wb_cpu_dmem_stb;
+assign wb_wdg_stb  = wb_wdg_cyc;
+assign wb_wdg_we   = wb_cpu_dmem_we;
+assign wb_wdg_be   = wb_cpu_dmem_be;
+assign wb_wdg_wdat = wb_cpu_dmem_wdat;
 
 assign wb_mem_adr   = wb_cpu_imem_stb ? wb_cpu_imem_adr : wb_cpu_dmem_adr;
 assign wb_mem_wdat  = wb_cpu_dmem_wdat;
@@ -234,7 +257,7 @@ fazyrv_top #(
   .MEMDLY1    ( 0         )
 ) i_fazyrv_top (
   .clk_i          ( clk_i             ),
-  .rst_in         ( rst_in            ),
+  .rst_in         ( rst_in & core_res_n), // NOTE THIS WATCHDOG SIGNAL IS NOT MASKED HERE YET - ADD THIS FOR SAFETY
   .tirq_i         ( tirq_i            ),
   .trap_o         ( trap_o            ),
 
@@ -261,5 +284,52 @@ fazyrv_top #(
   .ccx_resp_i     ( ccx_resp          )
 );
 
+// wdg
+wdg_top #(
+  // Wishbone
+  .REG_ADDRESS_WIDTH    (2), // <- TODO
+  .REG_PRE_DECODE       (0),
+  .REG_BASE_ADDRESS     (0), // <- TODO
+  .REG_ERROR_STATUS     (0),
+  .REG_DEFAULT_READ     (0),
+  .REG_INSERT_SLICER    (0),
+  .REG_USE_STALLS       (0), // idk?
+
+  .WB_DATA_WIDTH        (32),
+
+  .WDG_PRECLKDIV_WIDTH  (20),
+  .WDG_TICK_BIT         (19), // can be set from 0 up to WDG_PRECLKDIV_WIDTH-1
+) i_wdg_top (
+  .clk                  (clk_i),
+  .res_n                (rst_in & wdg_res_n),
+  // Wishbone interface
+  .i_wb_cyc             (wb_wdg_cyc),
+  .i_wb_stb             (wb_wdg_stb),
+  .o_wb_stall           (), // NC
+  .i_wb_adr             (wb_wdg_adr),
+  .i_wb_we              (wb_wdg_we),
+  .i_wb_dat             (wb_wdg_wdat),
+  .i_wb_sel             (wb_wdg_be),
+  .o_wb_ack             (wb_wdg_ack),
+  .o_wb_err             (), // NC
+  .o_wb_rty             (), // NC
+  .o_wb_dat             (wb_wdg_rdat),
+  // ---
+  .o_irq1                (),       // NC stage 1 watchdog timeout
+  .o_irq2                (wdg_to)  //    stage 2 watchdog timeout //TODO make safer
+);
+
+reset_ctrl #(
+    .CORE_RST_CYCLES(60),
+    .PADDING_CYCLES(5),
+    .WDG_RST_CYCLES(1),     
+) i_rstctl (
+    .clk(clk_i),
+    .sys_res_n(rst_in),
+
+    . wdg_to(wdg_to),
+    . wdg_res_n(wdg_res_n),
+    . core_res_n(core_res_n)
+);
 
 endmodule
