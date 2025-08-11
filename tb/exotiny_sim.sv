@@ -59,6 +59,40 @@ qspi_psram #( .DEPTH(RAMSIZE) ) i_qspi_psram (
   .io3_io   ( sdio[3]   )
 );
 
+
+// CCX
+localparam RES_DLY = 10;
+
+logic [CHUNKSIZE-1:0] ccx_rs_a;
+logic [CHUNKSIZE-1:0] ccx_rs_b;
+logic [CHUNKSIZE-1:0] ccx_res;
+
+logic                 ccx_req;
+logic                 ccx_resp;
+
+logic                 ccx_sel;
+
+
+logic [CHUNKSIZE-1:0] shift_res [0:RES_DLY-1];
+logic                 shift_req [0:(RES_DLY-1 + 32/CHUNKSIZE-1)];
+
+assign ccx_res  = shift_res[RES_DLY-1];
+assign ccx_resp = shift_req[RES_DLY-1 + 32/CHUNKSIZE-1];
+
+always_ff @(posedge clk_i) begin
+  shift_res[0] <= ccx_rs_a & ccx_rs_b;
+  shift_req[0] <= ccx_req;
+end
+
+genvar i;
+generate for (i = 1; i < RES_DLY; i++) begin
+  always_ff @(posedge clk_i) shift_res[i] <= shift_res[i-1];
+end endgenerate
+
+generate for (i = 1; i < RES_DLY + 32/CHUNKSIZE-1; i++) begin
+  always_ff @(posedge clk_i) shift_req[i] <= shift_req[i-1];
+end endgenerate
+
 exotiny #( 
   .CHUNKSIZE  ( CHUNKSIZE ),
   .CONF       ( CONF      ),
@@ -78,7 +112,14 @@ exotiny #(
 
   .spi_sck_o      ( spi_sck     ),
   .spi_sdo_o      ( spi_sdo     ),
-  .spi_sdi_i      ( spi_sdi     )
+  .spi_sdi_i      ( spi_sdi     ),
+
+  .ccx_rs_a_o     ( ccx_rs_a    ),
+  .ccx_rs_b_o     ( ccx_rs_b    ),
+  .ccx_res_i      ( ccx_res     ),
+  .ccx_sel_o      ( ccx_sel     ),
+  .ccx_req_o      ( ccx_req     ),
+  .ccx_resp_i     ( ccx_resp    )
 );
 
 // conditional loopback for testing
