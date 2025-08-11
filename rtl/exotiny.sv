@@ -114,7 +114,7 @@ logic [3:0]   spi_presc;
 logic         spi_cpol;
 logic         spi_auto_cs;
 
-logic [GPICNT-1:0]  gpo;
+logic [GPOCNT-1:0]  gpo;
 logic               spi_cs;
 
 logic [CHUNKSIZE-1:0] ccx_rs_a;
