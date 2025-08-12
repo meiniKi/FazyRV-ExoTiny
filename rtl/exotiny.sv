@@ -104,6 +104,7 @@ logic [31:0]  wb_spi_rdat;
 logic [31:0]  wb_spi_wdat;
 
 logic         sel_rom_ram;
+logic         sel_wdg;
 logic         sel_mem;
 logic         sel_regs;
 logic         sel_spi;
@@ -297,16 +298,16 @@ fazyrv_top #(
 // wdg
 wdg_top #(
   // Wishbone
-  .REG_ADDRESS_WIDTH    (  2 ), // <- TODO
-  .REG_PRE_DECODE       (  0 ),
-  .REG_BASE_ADDRESS     (  0 ), // <- TODO
-  .REG_ERROR_STATUS     (  0 ),
-  .REG_DEFAULT_READ     (  0 ),
-  .REG_INSERT_SLICER    (  0 ),
-  .REG_USE_STALLS       (  0 ), // idk?
-  .WB_DATA_WIDTH        ( 32 ),
-  .WDG_PRECLKDIV_WIDTH  ( 20 ),
-  .WDG_TICK_BIT         ( 19 ) // can be set from 0 up to WDG_PRECLKDIV_WIDTH-1
+  .REG_ADDRESS_WIDTH    (  32             ), // <- TODO
+  .REG_PRE_DECODE       (  0              ),
+  .REG_BASE_ADDRESS     (  32'h8000_0000  ), // <- TODO
+  .REG_ERROR_STATUS     (  0              ),
+  .REG_DEFAULT_READ     (  0              ),
+  .REG_INSERT_SLICER    (  0              ),
+  .REG_USE_STALLS       (  0              ), // idk?
+  .WB_DATA_WIDTH        ( 32              ),
+  .WDG_PRECLKDIV_WIDTH  ( 20              ),
+  .WDG_TICK_BIT         ( 19              ) // can be set from 0 up to WDG_PRECLKDIV_WIDTH-1
 ) i_wdg_top (
   .clk                  ( clk_i       ),
   .res_n                ( wdg_res_n   ),
