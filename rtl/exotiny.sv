@@ -105,6 +105,7 @@ logic [31:0]  wb_spi_wdat;
 
 logic         sel_rom_ram;
 logic         sel_mem;
+logic         sel_wdg;
 logic         sel_regs;
 logic         sel_spi;
 
@@ -117,11 +118,6 @@ logic         spi_auto_cs;
 logic [GPOCNT-1:0]  gpo;
 logic               spi_cs;
 
-logic [CHUNKSIZE-1:0] ccx_rs_a;
-logic [CHUNKSIZE-1:0] ccx_rs_b;
-logic [CHUNKSIZE-1:0] ccx_res;
-logic                 ccx_req;
-logic                 ccx_resp;
 
 logic wdg_to; // watchdog timeout
 logic wdg_res_en_n;
@@ -133,12 +129,6 @@ logic core_res_n;
 assign wdg_res_n  = rst_in & wdg_res_en_n;
 // wdg_res_en_n is gated by ~gpo[1] (inverted as init by 0)
 assign core_res_n = rst_in & (wdg_res_en_n | ~gpo[2]);
-
-assign ccx_rs_a_o = ccx_rs_a;
-assign ccx_rs_b_o = ccx_rs_b;
-assign ccx_req_o  = ccx_req;
-assign ccx_res    = ccx_res_i;
-assign ccx_resp   = ccx_resp_i;
 
 // we don't have enough io, thus
 // we use gpo[1] to mux whether soft cs or by peripheral
@@ -258,6 +248,11 @@ wb_spi i_wb_spi (
 );
 
 
+logic [6:0]  tst_dly;
+
+always_ff @(posedge clk_i) tst_dly <= {tst_dly[5:0], ccx_req};
+
+
 fazyrv_top #( 
   .CHUNKSIZE  ( CHUNKSIZE ),
   .CONF       ( CONF      ),
@@ -286,46 +281,59 @@ fazyrv_top #(
   .wb_dmem_adr_o  ( wb_cpu_dmem_adr   ),
   .wb_dmem_dat_o  ( wb_cpu_dmem_wdat  ),
 
-  .ccx_rs_a_o     ( ccx_rs_a          ),
-  .ccx_rs_b_o     ( ccx_rs_b          ),
-  .ccx_res_i      ( ccx_res           ),
+  .ccx_rs_a_o     ( ccx_rs_a_o        ),
+  .ccx_rs_b_o     ( ccx_rs_b_o        ),
+  .ccx_res_i      ( ccx_res_i         ),
   .ccx_sel_o      ( ccx_sel_o         ),
-  .ccx_req_o      ( ccx_req           ),
-  .ccx_resp_i     ( ccx_resp          )
+  .ccx_req_o      ( ccx_req_o         ),
+  .ccx_resp_i     ( ccx_resp_i        )
+
+  //.ccx_rs_a_o     ( ccx_rs_a          ),
+  //.ccx_rs_b_o     ( ccx_rs_b          ),
+  //.ccx_res_i      ( ccx_rs_a & ccx_rs_b ),
+  //.ccx_sel_o      ( ccx_sel_o         ),
+  //.ccx_req_o      ( ccx_req           ),
+  //.ccx_resp_i     ( tst_dly[6]          )
+
 );
 
 // wdg
-wdg_top #(
-  // Wishbone
-  .REG_ADDRESS_WIDTH    (  2 ), // <- TODO
-  .REG_PRE_DECODE       (  0 ),
-  .REG_BASE_ADDRESS     (  0 ), // <- TODO
-  .REG_ERROR_STATUS     (  0 ),
-  .REG_DEFAULT_READ     (  0 ),
-  .REG_INSERT_SLICER    (  0 ),
-  .REG_USE_STALLS       (  0 ), // idk?
-  .WB_DATA_WIDTH        ( 32 ),
-  .WDG_PRECLKDIV_WIDTH  ( 20 ),
-  .WDG_TICK_BIT         ( 19 ) // can be set from 0 up to WDG_PRECLKDIV_WIDTH-1
-) i_wdg_top (
-  .clk                  ( clk_i       ),
-  .res_n                ( wdg_res_n   ),
-  // Wishbone interface
-  .i_wb_cyc             ( wb_wdg_cyc  ),
-  .i_wb_stb             ( wb_wdg_stb  ),
-  .o_wb_stall           ( /* NC */    ),
-  .i_wb_adr             ( wb_wdg_adr  ),
-  .i_wb_we              ( wb_wdg_we   ),
-  .i_wb_dat             ( wb_wdg_wdat ),
-  .i_wb_sel             ( wb_wdg_be   ),
-  .o_wb_ack             ( wb_wdg_ack  ),
-  .o_wb_err             ( /* NC */    ),
-  .o_wb_rty             ( /* NC */    ),
-  .o_wb_dat             ( wb_wdg_rdat ),
-  // ---
-  .o_irq1                (),              // NC stage 1 watchdog timeout
-  .o_irq2                ( wdg_to     )   //    stage 2 watchdog timeout //TODO make safer
-);
+
+//wdg_top #(
+//  // Wishbone
+//  .REG_ADDRESS_WIDTH    (  2 ), // <- TODO
+//  .REG_PRE_DECODE       (  0 ),
+//  .REG_BASE_ADDRESS     (  0 ), // <- TODO
+//  .REG_ERROR_STATUS     (  0 ),
+//  .REG_DEFAULT_READ     (  0 ),
+//  .REG_INSERT_SLICER    (  0 ),
+//  .REG_USE_STALLS       (  0 ), // idk?
+//  .WB_DATA_WIDTH        ( 32 ),
+//  .WDG_PRECLKDIV_WIDTH  ( 20 ),
+//  .WDG_TICK_BIT         ( 19 ) // can be set from 0 up to WDG_PRECLKDIV_WIDTH-1
+//) i_wdg_top (
+//  .clk                  ( clk_i       ),
+//  .res_n                ( wdg_res_n   ),
+//  // Wishbone interface
+//  .i_wb_cyc             ( wb_wdg_cyc  ),
+//  .i_wb_stb             ( wb_wdg_stb  ),
+//  .o_wb_stall           ( /* NC */    ),
+//  .i_wb_adr             ( wb_wdg_adr  ),
+//  .i_wb_we              ( wb_wdg_we   ),
+//  .i_wb_dat             ( wb_wdg_wdat ),
+//  .i_wb_sel             ( wb_wdg_be   ),
+//  .o_wb_ack             ( wb_wdg_ack  ),
+//  .o_wb_err             ( /* NC */    ),
+//  .o_wb_rty             ( /* NC */    ),
+//  .o_wb_dat             ( wb_wdg_rdat ),
+//  // ---
+//  .o_irq1                (),              // NC stage 1 watchdog timeout
+//  .o_irq2                ( wdg_to     )   //    stage 2 watchdog timeout //TODO make safer
+//);
+
+assign wb_wdg_rdat = 'b0;
+assign wb_wdg_ack = 'b0;
+assign wdg_to = 'b0;
 
 reset_ctrl #(
   .CORE_RST_CYCLES ( 60 ),
