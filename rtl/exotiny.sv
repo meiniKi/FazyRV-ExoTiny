@@ -247,11 +247,8 @@ wb_spi i_wb_spi (
   .spi_sdi_i      ( spi_sdi_i   )
 );
 
-
-logic [6:0]  tst_dly;
-
-always_ff @(posedge clk_i) tst_dly <= {tst_dly[5:0], ccx_req};
-
+//logic [6:0]  tst_dly;
+//always_ff @(posedge clk_i) tst_dly <= {tst_dly[5:0], ccx_req};
 
 fazyrv_top #( 
   .CHUNKSIZE  ( CHUNKSIZE ),
@@ -287,14 +284,6 @@ fazyrv_top #(
   .ccx_sel_o      ( ccx_sel_o         ),
   .ccx_req_o      ( ccx_req_o         ),
   .ccx_resp_i     ( ccx_resp_i        )
-
-  //.ccx_rs_a_o     ( ccx_rs_a          ),
-  //.ccx_rs_b_o     ( ccx_rs_b          ),
-  //.ccx_res_i      ( ccx_rs_a & ccx_rs_b ),
-  //.ccx_sel_o      ( ccx_sel_o         ),
-  //.ccx_req_o      ( ccx_req           ),
-  //.ccx_resp_i     ( tst_dly[6]          )
-
 );
 
 // wdg
