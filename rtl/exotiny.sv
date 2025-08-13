@@ -133,7 +133,7 @@ logic core_res_n;
 
 assign wdg_res_n  = rst_in & wdg_res_en_n;
 // wdg_res_en_n is gated by ~gpo[1] (inverted as init by 0)
-assign core_res_n = rst_in & (wdg_res_en_n | ~gpo[2]);
+assign core_res_n = rst_in & (core_res_en_n | ~gpo[2]);
 
 assign ccx_rs_a_o = ccx_rs_a;
 assign ccx_rs_b_o = ccx_rs_b;
