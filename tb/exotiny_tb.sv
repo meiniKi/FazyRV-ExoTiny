@@ -66,8 +66,7 @@ end
 exotiny_sim #( 
   .CHUNKSIZE  ( CHUNKSIZE ),
   .CONF       ( CONF      ),
-  .RFTYPE     ( RFTYPE    ),
-  .GPOCNT     (  'd6      )
+  .RFTYPE     ( RFTYPE    )
 ) i_exotiny_sim (
   .clk_i      ( clk   ),
   .rst_in     ( rst_n )

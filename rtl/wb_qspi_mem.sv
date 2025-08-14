@@ -91,7 +91,7 @@ assign wb_mem_dat_o = { dat_r[ 7: 4], dat_r[ 3: 0],
                         dat_r[31:28], dat_r[27:24]};
 
 logic       crm_r, crm_n;
-logic [3:0] data_i_padded [0:7];
+wire [3:0] data_i_padded [0:7]; // todo: check why logic/wire influenced synth here
 logic [2:0] data_idx;
 
 logic [1:0] offset;
