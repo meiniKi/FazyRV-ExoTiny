@@ -306,7 +306,11 @@ wdg_top #(
   .REG_USE_STALLS       (  0              ),
   .WB_DATA_WIDTH        ( 32              ),
   .WDG_PRECLKDIV_WIDTH  ( 20              ),
-  .WDG_TICK_BIT         ( 2              ) // can be set from 0 up to WDG_PRECLKDIV_WIDTH-1 // !!! ALERT: MAKE SURE BEFORE TAPEOUT THIS IS 19!!!
+`ifdef SIM
+  .WDG_TICK_BIT         (  2              ) // can be set from 0 up to WDG_PRECLKDIV_WIDTH-1
+`else
+  .WDG_TICK_BIT         ( 19              ) // can be set from 0 up to WDG_PRECLKDIV_WIDTH-1
+`endif
 ) i_wdg_top (
   .clk                  ( clk_i       ),
   .res_n                ( wdg_res_n   ),
