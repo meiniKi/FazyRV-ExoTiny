@@ -2,6 +2,9 @@
 
 FazyRV-ExoTiny implements a minimal System-on-Chip based on the FazyRV RISC-V core. It targets platforms that do not have on-chip memory available through external QSPI RAM and ROM memory. This repository is tailored to a particular use case. We recommend taking a look at the documentation given in [FazyRV](https://github.com/meiniKi/fazyrv).
 
+> [!WARNING] 
+> THIS DESIGN INCLUDES A WATCHDOG TIMER WITH A CLOCK DIVIDER. FOR SIMULATION PURPOSES IT IS SET TO BIT 2 BUT FOR TAPEOUT 19 SHALL BE USED!
+
 ## Table of Content
 - [Introduction](#intro)
 - [Quick Start](#quick)

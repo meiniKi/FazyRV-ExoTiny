@@ -85,6 +85,8 @@ _start:
     TEST(spic)
     TEST(spid)
 
+    TEST(wdg)
+
     TEST(lui)
     TEST(auipc)
     TEST(j)
