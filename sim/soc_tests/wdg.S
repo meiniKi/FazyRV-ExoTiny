@@ -46,6 +46,18 @@ delay_loop2:
   # this delay loop is enough to trigger a reset cycle via the watchdog
   # afterwards the watchdog is disabled as it resets itself at the end of this sequence
 
+  # Program custom wdcnt value (timeout value)
+  # timeout count: 255
+  # enable wdg: 1
+  li   t1, (0x0A << 4) | 0x1
+  sw   t1, 0(t0)           # Store byte t1 to address in t0
+
+  # wait some more time
+  li   t2, 200     # Load a large value for delay
+delay_loop3:
+    addi t2, t2, -1       # Decrement t2
+    bnez t2, delay_loop3   # If t2 != 0, repeat loop
+
   # for happy test:
   TEST_ST_OP( 2, lb, sb, 0b00000001, 0, 0x20000000 );
   TEST_ST_OP( 3, lb, sb, 0b00000010, 0, 0x20000000 );
