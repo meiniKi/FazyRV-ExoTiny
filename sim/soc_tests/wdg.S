@@ -39,6 +39,13 @@ delay_loop:
 
   # wait some more time
   li   t2, 200     # Load a large value for delay
+
+  # This breaks the test suite, as the core gets reset
+  # Added to manually test whether the reset logic works
+  #li x1, 0x04;
+  #li x2, 0x20000000;
+  #sb x1, 0(x2);
+
 delay_loop2:
     addi t2, t2, -1       # Decrement t2
     bnez t2, delay_loop2   # If t2 != 0, repeat loop

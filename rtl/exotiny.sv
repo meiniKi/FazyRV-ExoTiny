@@ -52,6 +52,8 @@ module exotiny #(
 localparam GPOCNT = 3;
 
 logic         tirq_i;
+assign tirq_i = 'b0;
+
 logic         trap_o;
 
 logic         wb_cpu_imem_stb;
